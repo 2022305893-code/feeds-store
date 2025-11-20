@@ -12081,19 +12081,19 @@
             currentSalesDetailData = data;
             
             // Use backend values but correct only the sales count if it seems duplicated
-            let correctedRevenue = data.totalRevenue;
-            let correctedSales = data.totalSales;
-            let correctedCost = data.totalCost;
-            let correctedProfit = data.totalProfit;
+            let correctedRevenue = data.totalRevenue || 0;
+            let correctedSales = data.totalSales || 0;
+            let correctedCost = data.totalCost || 0;
+            let correctedProfit = data.totalProfit || 0;
             
             // Direct database API provides accurate counts - no correction needed
             
             // DEBUG: Log the actual values being used
             console.log('🔧 Modal: Raw analytics data:', {
-                revenue: data.totalRevenue,
-                cost: data.totalCost,
-                profit: data.totalProfit,
-                sales: data.totalSales
+                revenue: correctedRevenue,
+                cost: correctedCost,
+                profit: correctedProfit,
+                sales: correctedSales
             });
             
             // Direct database API now provides accurate data - no correction needed
@@ -12106,7 +12106,7 @@
             });
             
             // Update summary cards
-            document.getElementById('modalTotalRevenue').textContent = `₱${correctedRevenue.toFixed(2)}`;
+            document.getElementById('modalTotalRevenue').textContent = `₱${(correctedRevenue || 0).toFixed(2)}`;
                     // Removed Total Orders field
             
             // Calculate total items sold - handle different data structures
@@ -12130,24 +12130,24 @@
             document.getElementById('modalTotalItems').textContent = totalItems;
             
             // Calculate average order value
-            const averageOrder = correctedSales > 0 ? correctedRevenue / correctedSales : 0;
-            document.getElementById('modalAverageOrder').textContent = `₱${averageOrder.toFixed(2)}`;
+            const averageOrder = (correctedSales || 0) > 0 ? (correctedRevenue || 0) / (correctedSales || 0) : 0;
+            document.getElementById('modalAverageOrder').textContent = `₱${(averageOrder || 0).toFixed(2)}`;
             
             // Update profit information
             document.getElementById('modalTotalProfit').textContent = `₱${(correctedProfit || 0).toFixed(2)}`;
             
             // Calculate profit margin
-            const profitMargin = correctedRevenue > 0 ? ((correctedProfit || 0) / correctedRevenue) * 100 : 0;
-            document.getElementById('modalProfitMargin').textContent = `${profitMargin.toFixed(1)}%`;
+            const profitMargin = (correctedRevenue || 0) > 0 ? ((correctedProfit || 0) / (correctedRevenue || 0)) * 100 : 0;
+            document.getElementById('modalProfitMargin').textContent = `${(profitMargin || 0).toFixed(1)}%`;
             
             // Update breakdown by animal
-            updateAnimalBreakdown(data.salesByAnimal);
+            updateAnimalBreakdown(data.salesByAnimal || {});
             
             // Update breakdown by category
-            updateCategoryBreakdown(data.salesByCategory);
+            updateCategoryBreakdown(data.salesByCategory || {});
             
             // Update top products table
-            updateTopProductsTable(data.topProducts);
+            updateTopProductsTable(data.topProducts || []);
             
             // Update recent transactions
             updateRecentTransactionsTable(data.sales);
