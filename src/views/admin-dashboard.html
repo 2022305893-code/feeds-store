@@ -10808,43 +10808,45 @@
                     if (weekResponse.ok) {
                         const weekData = await weekResponse.json();
                         const weekSummary = weekData.summary || {};
-                        document.getElementById('weekSales').textContent = `₱${(weekSummary.totalRevenue || 0).toFixed(2)}`;
-                        document.getElementById('weekOrders').textContent = `${weekSummary.totalOrders || 0} orders`;
+                        const weekRevenue = weekSummary.totalRevenue || 0;
+                        const weekOrders = weekSummary.totalOrders || 0;
+                        document.getElementById('weekSales').textContent = `₱${weekRevenue.toFixed(2)}`;
+                        document.getElementById('weekOrders').textContent = `${weekOrders} orders`;
                         
-                        // Calculate daily average for the week using corrected values
-                        const dailyAverage = correctedWeekRevenue / 7;
-                        const avgOrders = correctedWeekSales / 7;
+                        // Calculate daily average for the week
+                        const dailyAverage = weekRevenue / 7;
+                        const avgOrders = weekOrders / 7;
                         document.getElementById('dailyAverage').textContent = `₱${dailyAverage.toFixed(2)}`;
-                        document.getElementById('avgOrders').textContent = `${avgOrders.toFixed(1)} items/day`;
+                        document.getElementById('avgOrders').textContent = `${avgOrders.toFixed(1)} orders/day`;
                     } else {
                         document.getElementById('weekSales').textContent = '₱0.00';
-                        document.getElementById('weekOrders').textContent = '0 items';
+                        document.getElementById('weekOrders').textContent = '0 orders';
                         document.getElementById('dailyAverage').textContent = '₱0.00';
-                        document.getElementById('avgOrders').textContent = '0 items/day';
+                        document.getElementById('avgOrders').textContent = '0 orders/day';
                     }
                     
                 } else {
                     // Fallback to zero values if API call fails
                     document.getElementById('todaySales').textContent = '₱0.00';
-                    document.getElementById('todayOrders').textContent = '0 items';
+                    document.getElementById('todayOrders').textContent = '0 orders';
                     document.getElementById('yesterdaySales').textContent = '₱0.00';
-                    document.getElementById('yesterdayOrders').textContent = '0 items';
+                    document.getElementById('yesterdayOrders').textContent = '0 orders';
                     document.getElementById('weekSales').textContent = '₱0.00';
-                    document.getElementById('weekOrders').textContent = '0 items';
+                    document.getElementById('weekOrders').textContent = '0 orders';
                     document.getElementById('dailyAverage').textContent = '₱0.00';
-                    document.getElementById('avgOrders').textContent = '0 items/day';
+                    document.getElementById('avgOrders').textContent = '0 orders/day';
                 }
             } catch (error) {
                 console.error('Error updating daily sales display:', error);
                 // Set all daily stats to zero on error
                 document.getElementById('todaySales').textContent = '₱0.00';
-                document.getElementById('todayOrders').textContent = '0 items';
+                document.getElementById('todayOrders').textContent = '0 orders';
                 document.getElementById('yesterdaySales').textContent = '₱0.00';
-                document.getElementById('yesterdayOrders').textContent = '0 items';
+                document.getElementById('yesterdayOrders').textContent = '0 orders';
                 document.getElementById('weekSales').textContent = '₱0.00';
-                document.getElementById('weekOrders').textContent = '0 items';
+                document.getElementById('weekOrders').textContent = '0 orders';
                 document.getElementById('dailyAverage').textContent = '₱0.00';
-                document.getElementById('avgOrders').textContent = '0 items/day';
+                document.getElementById('avgOrders').textContent = '0 orders/day';
             }
         }
         
