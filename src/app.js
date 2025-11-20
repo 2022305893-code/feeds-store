@@ -153,7 +153,8 @@ app.use(cors({
       'http://127.0.0.1:3000',
       'http://127.0.0.1:4000',
       'https://delightful-buttercream-02753b.netlify.app',
-      'https://feeds-store-api.onrender.com'
+      'https://feeds-store-api.onrender.com',
+      'https://2022305893-code.github.io'
     ];
     
     if (!origin || allowedOrigins.includes(origin)) {
