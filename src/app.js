@@ -719,6 +719,11 @@ app.get('/product/:id', (req, res) => {
 
 
 app.post('/api/qr/trigger-modal', (req, res) => {
+  // Explicitly set CORS headers for this endpoint
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
   const { productId, timestamp } = req.body;
   
   
@@ -738,6 +743,11 @@ app.post('/api/qr/trigger-modal', (req, res) => {
 
 
 app.get('/api/qr/trigger-modal', (req, res) => {
+  // Explicitly set CORS headers for this endpoint
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
   const { productId, timestamp } = req.query;
   
   
@@ -815,6 +825,11 @@ app.get('/api/qr/trigger-modal', (req, res) => {
 
 
 app.get('/api/qr/check-triggers', (req, res) => {
+  // Explicitly set CORS headers for this endpoint
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
   global.qrTriggerRequests = global.qrTriggerRequests || [];
   
   
