@@ -1199,8 +1199,7 @@ app.listen(PORT, async () => {
         } catch (error) {
           
         }
-      }
-    }, 5000); 
+      }, 5000); 
     
     
     ngrokProcess.stdout.on('data', (data) => {
