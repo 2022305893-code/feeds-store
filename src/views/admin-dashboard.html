@@ -6966,18 +6966,17 @@
                 console.log('📊 Date range:', { startDate, endDate });
                 
                 const params = new URLSearchParams();
-                params.append('startDate', startDate);
-                params.append('endDate', endDate);
+                params.append('startDate', startDate.toISOString());
+                params.append('endDate', endDate.toISOString());
                 
                 // Add timestamp to prevent caching
                 params.append('_t', Date.now());
                 
-                console.log('📊 Making request to direct database API:', `${API_BASE}/orders?${params}`);
+                console.log('📊 Making request to date-range API:', `${API_BASE}/orders/date-range?${params}`);
                 
-                const response = await fetch(`${API_BASE}/orders?${params}`, {
+                const response = await fetch(`${API_BASE}/orders/date-range?${params}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                         'Cache-Control': 'no-cache',
                         'Pragma': 'no-cache',
