@@ -9907,7 +9907,7 @@
                 
                 console.log('📊 Loading forecasting data from:', oneYearAgo.toISOString(), 'to:', new Date().toISOString());
                 
-                const salesResponse = await fetch(`/api/sales/direct?${params}`, {
+                const salesResponse = await fetch(`${API_BASE}/orders?${params}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -9999,7 +9999,7 @@
                 // Add timestamp to prevent caching
                 params.append('_t', Date.now());
                 
-                const response = await fetch(`/api/sales/direct?${params}`, {
+                const response = await fetch(`${API_BASE}/orders?${params}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -10038,7 +10038,7 @@
                 // Add timestamp to prevent caching
                 params.append('_t', Date.now());
                 
-                const response = await fetch(`/api/sales/direct?${params}`, {
+                const response = await fetch(`${API_BASE}/orders?${params}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -10074,7 +10074,7 @@
                 // Add timestamp to prevent caching
                 params.append('_t', Date.now());
                 
-                const salesResponse = await fetch(`/api/sales/direct?${params}`, {
+                const salesResponse = await fetch(`${API_BASE}/orders?${params}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -10666,7 +10666,7 @@
                 console.log('📊 Start date:', startDate.toISOString());
                 console.log('📊 End date:', endDate.toISOString());
                 
-                const response = await fetch(`/api/sales/direct?${params}`, {
+                const response = await fetch(`${API_BASE}/orders?${params}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -10715,7 +10715,7 @@
                     // Add timestamp to prevent caching
                     yesterdayParams.append('_t', Date.now());
                     
-                    const yesterdayResponse = await fetch(`/api/sales/direct?${yesterdayParams}`, {
+                    const yesterdayResponse = await fetch(`${API_BASE}/orders?${yesterdayParams}`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -10744,7 +10744,7 @@
                     // Add timestamp to prevent caching
                     weekParams.append('_t', Date.now());
                     
-                    const weekResponse = await fetch(`/api/sales/direct?${weekParams}`, {
+                    const weekResponse = await fetch(`${API_BASE}/orders?${weekParams}`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -11138,7 +11138,7 @@
                 // Add timestamp to prevent caching
                 params.append('_t', Date.now());
                 
-                const response = await fetch(`/api/sales/direct?${params}`, {
+                const response = await fetch(`${API_BASE}/orders?${params}`, {
                     method: 'GET',
                     headers: { 
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
