@@ -147,28 +147,8 @@ app.use(helmet({
 
 // Configure CORS to allow production and local requests
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow all origins for development/testing
-    // In production, this should be restricted to specific domains
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:4000',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:4000',
-      'https://delightful-buttercream-02753b.netlify.app',
-      'https://feeds-store-api.onrender.com',
-      'https://2022305893-code.github.io',
-      'https://zymouneshop-bot.github.io',
-      'https://zymounefeedsupply.store'
-    ];
-    
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
+  origin: '*',
+  credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'cache-control', 'pragma', 'expires'],
   optionsSuccessStatus: 200
