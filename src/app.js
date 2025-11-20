@@ -158,7 +158,8 @@ app.use(cors({
       'https://delightful-buttercream-02753b.netlify.app',
       'https://feeds-store-api.onrender.com',
       'https://2022305893-code.github.io',
-      'https://zymouneshop-bot.github.io'
+      'https://zymouneshop-bot.github.io',
+      'https://zymounefeedsupply.store'
     ];
     
     if (!origin || allowedOrigins.includes(origin)) {
