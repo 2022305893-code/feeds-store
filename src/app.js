@@ -1233,7 +1233,7 @@ app.listen(PORT, async () => {
       console.log('NGROK ERROR:', data.toString());
     });
     
-  }, 2000);
+    }, 2000);
   } else {
     console.log('✅ Production mode detected - ngrok disabled');
   }
