@@ -152,9 +152,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     
                     if (result.user.role === 'customer') {
-                        window.location.href = '/feeds-store/customer-dashboard.html';
+                        window.location.href = './customer-dashboard.html';
                     } else {
-                        window.location.href = '/feeds-store/staff-dashboard.html';
+                        window.location.href = './staff-dashboard.html';
                     }
                 }, 1000);
             } else {
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
             closeAdminModal();
             showSuccess('Admin login successful! Redirecting...');
             setTimeout(() => {
-                window.location.href = '/feeds-store/admin-dashboard.html';
+                window.location.href = './admin-dashboard.html';
             }, 1000);
         } else {
             showModalError('Invalid admin password.');
