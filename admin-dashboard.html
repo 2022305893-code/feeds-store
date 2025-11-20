@@ -7159,15 +7159,15 @@
                     totalRevenue: 0,
                     totalCost: 0,
                     totalProfit: 0,
-                    salesByAnimal: { chicken: { count: 0 }, pig: { count: 0 } },
-                    salesByCategory: { feeds: { count: 0 }, supplements: { count: 0 } },
+                    salesByAnimal: { chicken: { count: 0, revenue: 0 }, pig: { count: 0, revenue: 0 } },
+                    salesByCategory: { feeds: { count: 0, revenue: 0 }, supplements: { count: 0, revenue: 0 } },
                     topProducts: [],
                     sales: []
                 };
             }
             
-            const salesByAnimal = { chicken: { count: 0 }, pig: { count: 0 } };
-            const salesByCategory = { feeds: { count: 0 }, supplements: { count: 0 } };
+            const salesByAnimal = { chicken: { count: 0, revenue: 0 }, pig: { count: 0, revenue: 0 } };
+            const salesByCategory = { feeds: { count: 0, revenue: 0 }, supplements: { count: 0, revenue: 0 } };
             const productMap = {};
             let totalRevenue = 0;
             
@@ -7175,16 +7175,20 @@
                 if (!order.items) return;
                 
                 order.items.forEach(item => {
-                    // Count by animal type
+                    const itemRevenue = (item.price || 0) * (item.quantity || 1);
+                    
+                    // Count and revenue by animal type
                     const animalType = item.animalType?.toLowerCase() || 'chicken';
                     if (salesByAnimal[animalType]) {
                         salesByAnimal[animalType].count += item.quantity || 1;
+                        salesByAnimal[animalType].revenue += itemRevenue;
                     }
                     
-                    // Count by category
+                    // Count and revenue by category
                     const category = item.category?.toLowerCase() || 'feeds';
                     if (salesByCategory[category]) {
                         salesByCategory[category].count += item.quantity || 1;
+                        salesByCategory[category].revenue += itemRevenue;
                     }
                     
                     // Track top products
@@ -7193,10 +7197,16 @@
                         productMap[productName] = { name: productName, quantity: 0, revenue: 0 };
                     }
                     productMap[productName].quantity += item.quantity || 1;
-                    productMap[productName].revenue += (item.price || 0) * (item.quantity || 1);
+                    productMap[productName].revenue += itemRevenue;
                 });
                 
-                totalRevenue += order.total || 0;
+                totalRevenue += order.total || order.totalAmount || 0;
+            });
+            
+            console.log('📊 Breakdown calculations:', {
+                salesByAnimal,
+                salesByCategory,
+                totalRevenue
             });
             
             // Convert product map to sorted array
