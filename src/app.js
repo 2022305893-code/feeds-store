@@ -185,19 +185,28 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(path.join(__dirname, '..', 'uploads')));
 
-// Serve images from local filesystem first, then GridFS
-app.get('/zymoune-logo.png', (req, res) => {
-  // Explicitly set CORS headers
+// Handle OPTIONS preflight for logo
+app.options('/zymoune-logo.png', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.header('Cache-Control', 'public, max-age=31536000');
-  
+  res.sendStatus(200);
+});
+
+// Serve images from local filesystem first, then GridFS
+app.get('/zymoune-logo.png', (req, res) => {
   const logoPath = path.join(__dirname, 'public', 'zymoune-logo.png');
   
   if (fs.existsSync(logoPath)) {
     console.log('✅ Logo file found');
-    res.type('image/png');
+    res.set({
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Cache-Control': 'public, max-age=31536000',
+      'Content-Type': 'image/png'
+    });
     res.sendFile(logoPath);
   } else {
     console.log('❌ Logo file not found at:', logoPath);
