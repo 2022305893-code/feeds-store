@@ -3,13 +3,22 @@ const crypto = require('crypto');
 
 class EmailService {
   constructor() {
+    console.log('🔍 EmailService Constructor - Checking environment variables');
+    console.log('   SENDGRID_API_KEY exists:', !!process.env.SENDGRID_API_KEY);
+    console.log('   EMAIL_FROM exists:', !!process.env.EMAIL_FROM);
+    console.log('   EMAIL_FROM value:', process.env.EMAIL_FROM);
+    
     this.isConfigured = process.env.SENDGRID_API_KEY && process.env.EMAIL_FROM;
     
     if (this.isConfigured) {
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-      console.log('✅ SendGrid email service initialized');
+      console.log('✅ SendGrid email service initialized with API key');
     } else {
       console.log('📧 SendGrid not configured - using test mode');
+      console.log('   Missing: ', {
+        api_key: !process.env.SENDGRID_API_KEY ? 'YES' : 'no',
+        email_from: !process.env.EMAIL_FROM ? 'YES' : 'no'
+      });
     }
   }
 
