@@ -10261,7 +10261,7 @@
         // Add new staff
         async function addStaff(staffData) {
             try {
-                const response = await fetch('/api/staff', {
+                const response = await fetch(`${API_BASE}/staff`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
