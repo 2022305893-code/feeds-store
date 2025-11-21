@@ -182,8 +182,10 @@ class EmailService {
     try {
       if (this.isConfigured) {
         console.log('📧 Attempting to send email via SendGrid...');
-        await sgMail.send(msg);
-        console.log(`✅ Email sent to ${to}`);
+        console.log(`📧 To: ${to}, From: ${msg.from}`);
+        console.log(`📧 Subject: ${subject}`);
+        const response = await sgMail.send(msg);
+        console.log(`✅ Email sent successfully! Response status: ${response[0].statusCode}`);
         return { success: true };
       } else {
         // Test mode - log email details
@@ -200,6 +202,7 @@ class EmailService {
       }
     } catch (error) {
       console.error('❌ Email error:', error.message);
+      console.error('❌ Full error details:', error);
       
       let errorMessage = error.message;
       
