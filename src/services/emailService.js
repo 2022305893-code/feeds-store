@@ -11,15 +11,23 @@ class EmailService {
       this.transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
-        secure: false, // Use STARTTLS instead of SSL
+        secure: false,
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS
         },
-        connectionTimeout: 15000, // 15 seconds
-        socketTimeout: 15000,
-        logger: true,
-        debug: true
+        connectionTimeout: 20000, // 20 seconds
+        socketTimeout: 20000,
+        greetingTimeout: 10000,
+        pool: {
+          maxConnections: 1,
+          maxMessages: 5,
+          rateDelta: 2000,
+          rateLimit: 10
+        },
+        tls: {
+          rejectUnauthorized: false // Allow self-signed certs (sometimes needed on Render)
+        }
       });
     } else {
       console.log('📧 Email not configured - using test mode');
