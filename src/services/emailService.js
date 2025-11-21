@@ -1,36 +1,15 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 const crypto = require('crypto');
 
 class EmailService {
   constructor() {
-    
-    this.isConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+    this.isConfigured = process.env.SENDGRID_API_KEY && process.env.EMAIL_FROM;
     
     if (this.isConfigured) {
-      
-      this.transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        },
-        connectionTimeout: 20000, // 20 seconds
-        socketTimeout: 20000,
-        greetingTimeout: 10000,
-        pool: {
-          maxConnections: 1,
-          maxMessages: 5,
-          rateDelta: 2000,
-          rateLimit: 10
-        },
-        tls: {
-          rejectUnauthorized: false // Allow self-signed certs (sometimes needed on Render)
-        }
-      });
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      console.log('✅ SendGrid email service initialized');
     } else {
-      console.log('📧 Email not configured - using test mode');
+      console.log('📧 SendGrid not configured - using test mode');
     }
   }
 
@@ -51,9 +30,9 @@ class EmailService {
     const passwordToUse = temporaryPassword || EmailService.generateTemporaryPassword();
     console.log('📧 Password to use in email:', passwordToUse);
     
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'your-email@gmail.com',
+    const msg = {
       to: staffData.email,
+      from: process.env.EMAIL_FROM || 'zymouneshop@gmail.com',
       subject: 'Welcome to ZYMOUNE - Your Staff Account',
       html: `
         <!DOCTYPE html>
@@ -114,7 +93,7 @@ class EmailService {
 
     try {
       if (this.isConfigured) {
-        await this.transporter.sendMail(mailOptions);
+        await sgMail.send(msg);
         console.log(`✅ Staff invitation sent to ${staffData.email}`);
         return { success: true, temporaryPassword: passwordToUse };
       } else {
@@ -123,25 +102,25 @@ class EmailService {
         console.log('📧 EMAIL TEST MODE - Staff Invitation');
         console.log('='.repeat(60));
         console.log(`To: ${staffData.email}`);
-        console.log(`Subject: ${mailOptions.subject}`);
+        console.log(`Subject: ${msg.subject}`);
         console.log(`Temporary Password: ${passwordToUse}`);
         console.log('='.repeat(60));
         console.log('📝 Email content would be sent in production');
-        console.log('💡 Configure EMAIL_USER and EMAIL_PASS to send real emails');
+        console.log('💡 Configure SENDGRID_API_KEY to send real emails');
         console.log('='.repeat(60) + '\n');
         return { success: true, temporaryPassword: passwordToUse, testMode: true };
       }
     } catch (error) {
-      console.error('Error sending staff invitation:', error);
+      console.error('❌ Error sending staff invitation:', error.message);
       return { success: false, error: error.message };
     }
   }
 
   
   async sendPasswordReset(email, resetToken) {
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'your-email@gmail.com',
+    const msg = {
       to: email,
+      from: process.env.EMAIL_FROM || 'zymouneshop@gmail.com',
       subject: 'ZYMOUNE - Password Reset Request',
       html: `
         <!DOCTYPE html>
@@ -182,29 +161,29 @@ class EmailService {
     };
 
     try {
-      await this.transporter.sendMail(mailOptions);
-      console.log(`Password reset email sent to ${email}`);
+      await sgMail.send(msg);
+      console.log(`✅ Password reset email sent to ${email}`);
       return { success: true };
     } catch (error) {
-      console.error('Error sending password reset email:', error);
+      console.error('❌ Error sending password reset email:', error.message);
       return { success: false, error: error.message };
     }
   }
 
   // Generic email sending method
   async sendEmail({ to, subject, html }) {
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'your-email@gmail.com',
+    const msg = {
       to: to,
+      from: process.env.EMAIL_FROM || 'zymouneshop@gmail.com',
       subject: subject,
       html: html
     };
 
     try {
       if (this.isConfigured) {
-        console.log('📧 Attempting to send email via Gmail SMTP...');
-        const info = await this.transporter.sendMail(mailOptions);
-        console.log(`✅ Email sent to ${to}, Message ID: ${info.messageId}`);
+        console.log('📧 Attempting to send email via SendGrid...');
+        await sgMail.send(msg);
+        console.log(`✅ Email sent to ${to}`);
         return { success: true };
       } else {
         // Test mode - log email details
@@ -215,21 +194,21 @@ class EmailService {
         console.log(`Subject: ${subject}`);
         console.log('='.repeat(60));
         console.log('📝 Email content would be sent in production');
-        console.log('💡 Configure EMAIL_USER and EMAIL_PASS to send real emails');
+        console.log('💡 Configure SENDGRID_API_KEY to send real emails');
         console.log('='.repeat(60) + '\n');
         return { success: true, testMode: true };
       }
     } catch (error) {
-      console.error('❌ Email error:', error.code || error.message);
+      console.error('❌ Email error:', error.message);
       
       let errorMessage = error.message;
       
-      if (error.code === 'EAUTH' || error.message.includes('Invalid login')) {
-        errorMessage = 'Gmail authentication failed - check EMAIL_USER and EMAIL_PASS (use app password, not regular password)';
-      } else if (error.code === 'ETIMEDOUT' || error.code === 'ESOCKETTIMEDOUT' || error.message.includes('timeout')) {
-        errorMessage = 'Email connection timeout - Render servers may be blocking Gmail SMTP. Try SendGrid instead.';
-      } else if (error.message.includes('EREQUIRE')) {
-        errorMessage = 'Gmail requires app password for SMTP access';
+      if (error.message.includes('Invalid email')) {
+        errorMessage = 'Invalid email address provided';
+      } else if (error.message.includes('Invalid API Key')) {
+        errorMessage = 'SendGrid API key is invalid - check SENDGRID_API_KEY configuration';
+      } else if (error.message.includes('rate limit')) {
+        errorMessage = 'Too many emails sent - rate limited by SendGrid';
       }
       
       return { 
