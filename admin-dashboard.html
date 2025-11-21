@@ -10309,7 +10309,7 @@
         // Update existing staff
         async function updateStaff(staffId, staffData) {
             try {
-                const response = await fetch(`/api/staff/${staffId}`, {
+                const response = await fetch(`${API_BASE}/staff/${staffId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
