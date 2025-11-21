@@ -13,6 +13,12 @@ class EmailService {
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS
+        },
+        connectionTimeout: 10000, // 10 seconds
+        socketTimeout: 10000,
+        pool: {
+          maxConnections: 1,
+          maxMessages: 5
         }
       });
     } else {
@@ -188,8 +194,13 @@ class EmailService {
 
     try {
       if (this.isConfigured) {
-        await this.transporter.sendMail(mailOptions);
-        console.log(`✅ Email sent to ${to}`);
+        const info = await Promise.race([
+          this.transporter.sendMail(mailOptions),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Email sending timeout - took too long')), 15000)
+          )
+        ]);
+        console.log(`✅ Email sent to ${to}, Message ID: ${info.messageId}`);
         return { success: true };
       } else {
         // Test mode - log email details
@@ -205,7 +216,19 @@ class EmailService {
         return { success: true, testMode: true };
       }
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error('Error sending email:', error.message);
+      if (error.message.includes('timeout')) {
+        return { 
+          success: false, 
+          error: 'Email service timeout - connection took too long. Please check Gmail credentials and try again.' 
+        };
+      }
+      if (error.message.includes('EAUTH')) {
+        return { 
+          success: false, 
+          error: 'Gmail authentication failed - check EMAIL_USER and EMAIL_PASS configuration' 
+        };
+      }
       return { success: false, error: error.message };
     }
   }
