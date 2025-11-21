@@ -566,19 +566,40 @@
         
         /* Responsive Design */
         @media (max-width: 768px) {
-            .logo-oval {
-                width: 600px;
-                height: 480px;
-                opacity: 0.3;
-            }
-            
-            .login-section {
-                left: 1rem;
+            .main-container {
+                flex-direction: column;
                 padding: 1rem;
             }
             
+            .logo-background {
+                position: relative;
+                width: 100%;
+                height: auto;
+                margin-bottom: 2rem;
+            }
+            
+            .logo-oval {
+                width: 300px;
+                height: 240px;
+                opacity: 0.5;
+            }
+            
+            .login-section {
+                position: relative;
+                left: auto;
+                right: auto;
+                top: auto;
+                width: 100%;
+                padding: 1rem;
+                z-index: 10;
+            }
+            
             .logo-text-right {
-                right: 1rem;
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                margin-top: 1rem;
             }
             
             .logo-text h1 {
@@ -602,11 +623,6 @@
                 font-size: 0.9rem;
             }
             
-            .login-section {
-                padding: 1rem;
-                min-height: 60vh;
-            }
-            
             .login-container {
                 max-width: 100%;
                 padding: 1.5rem;
@@ -614,19 +630,41 @@
         }
         
         @media (max-width: 480px) {
+            .main-container {
+                flex-direction: column;
+                padding: 0.5rem;
+            }
+            
+            .logo-background {
+                position: relative;
+                width: 100%;
+                height: auto;
+                margin-bottom: 1.5rem;
+            }
+            
             .logo-oval {
-                width: 500px;
-                height: 400px;
+                width: 250px;
+                height: 200px;
                 opacity: 0.3;
             }
             
             .login-section {
-                left: 0.5rem;
+                position: relative;
+                left: auto;
+                right: auto;
+                top: auto;
+                width: 100%;
                 padding: 0.5rem;
+                min-height: auto;
+                z-index: 10;
             }
             
             .logo-text-right {
-                right: 0.5rem;
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                margin-top: 1rem;
             }
             
             .logo-text h1 {
