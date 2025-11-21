@@ -10379,7 +10379,7 @@
             
             try {
                 console.log('Deleting staff with ID:', staffId);
-                const response = await fetch(`/api/staff/${staffId}`, {
+                const response = await fetch(`${API_BASE}/staff/${staffId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
