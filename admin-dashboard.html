@@ -12164,7 +12164,7 @@
                             <tr>
                                 <td>${receiptNo}</td>
                                 <td>${timeString}</td>
-                                <td style="color:blue;font-weight:bold;">${staffName}</td>
+                                <td style="color:blue;font-weight:bold;">${staffName} <span style='color:red'>(TEST)</span></td>
                                 <td>${customerName}</td>
                                 <td>${quantity} items - ${itemsSummary}</td>
                                 <td>₱${totalAmount.toLocaleString()}</td>
@@ -12172,6 +12172,8 @@
                             </tr>
                         `;
                     }).join('');
+                    // Log the final HTML for the table body
+                    console.log('🟦 Final tbody HTML:', tbody.innerHTML);
                 }
                 try {
                     switchSection('dashboard');
