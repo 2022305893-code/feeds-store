@@ -820,6 +820,7 @@
                     </div>
                 </div>
                 <button type="submit" class="btn">Login as Staff</button>
+                        <button type="button" class="btn btn-link" id="forgotPasswordBtn" style="margin-top:0.5rem; color:#8b7355; background:none; border:none; text-decoration:underline; cursor:pointer; font-size:1rem;">Forgot Password?</button>
             </form>
         </div>
         
@@ -875,5 +876,23 @@
         }
     </script>
     <script src="./js/login.js"></script>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); align-items:center; justify-content:center;">
+        <div class="modal-content" style="background:#fff; padding:2rem; border-radius:10px; max-width:400px; margin:auto; position:relative;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0;">Forgot Password</h2>
+                <span class="close" id="closeForgotPasswordModal" style="cursor:pointer; font-size:2rem;">&times;</span>
+            </div>
+            <form id="forgotPasswordForm">
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label for="forgotEmail">Enter your email address</label>
+                    <input type="email" id="forgotEmail" name="forgotEmail" required style="width:100%; padding:0.5rem; margin-top:0.25rem;" />
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Reset Password</button>
+            </form>
+            <div id="forgotPasswordMessage" style="margin-top:1rem; color:#b94a48;"></div>
+        </div>
+    </div>
 </body>
 </html>

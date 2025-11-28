@@ -6,8 +6,10 @@ const {
   loginAdmin,
   loginStaff,
   getProfile,
-  updateProfile
+  updateProfile,
+  forgotPassword
 } = require('../controllers/authController');
+router.post('/forgot-password', [body('email').isEmail().normalizeEmail()], forgotPassword);
 
 const router = express.Router();
 

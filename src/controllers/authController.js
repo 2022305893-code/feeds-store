@@ -237,5 +237,43 @@ module.exports = {
   loginAdmin,
   loginStaff,
   getProfile,
-  updateProfile
+  updateProfile,
+  forgotPassword: async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ error: 'Email is required.' });
+
+      // Try to find user in User collection
+      let user = await User.findOne({ email });
+      let staff = null;
+      let isStaff = false;
+      if (!user) {
+        staff = await Staff.findOne({ email });
+        if (!staff) return res.status(404).json({ error: 'Email not found.' });
+        isStaff = true;
+      }
+
+      // Generate new password
+      const EmailService = require('../services/emailService');
+      const newPassword = EmailService.generateTemporaryPassword();
+
+      // Update password in DB
+      if (isStaff) {
+        staff.password = newPassword;
+        await staff.save();
+        // Send email to staff
+        await new EmailService().sendStaffInvitation(staff, newPassword);
+      } else {
+        user.password = newPassword;
+        await user.save();
+        // Send email to user
+        await new EmailService().sendStaffInvitation(user, newPassword);
+      }
+
+      return res.json({ success: true });
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      return res.status(500).json({ error: 'Failed to reset password.' });
+    }
+  }
 };

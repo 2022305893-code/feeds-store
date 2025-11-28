@@ -101,6 +101,58 @@ function showLoading() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
+
+        // Forgot Password Modal logic
+        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+        const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+        const closeForgotPasswordModal = document.getElementById('closeForgotPasswordModal');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        const forgotPasswordMessage = document.getElementById('forgotPasswordMessage');
+
+        forgotPasswordBtn.addEventListener('click', function() {
+            forgotPasswordModal.style.display = 'flex';
+            forgotPasswordMessage.textContent = '';
+            document.getElementById('forgotEmail').value = '';
+        });
+        closeForgotPasswordModal.addEventListener('click', function() {
+            forgotPasswordModal.style.display = 'none';
+        });
+        window.addEventListener('click', function(event) {
+            if (event.target === forgotPasswordModal) {
+                forgotPasswordModal.style.display = 'none';
+            }
+        });
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && forgotPasswordModal.style.display === 'flex') {
+                forgotPasswordModal.style.display = 'none';
+            }
+        });
+
+        forgotPasswordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            forgotPasswordMessage.style.color = '#b94a48';
+            forgotPasswordMessage.innerHTML = '<span class="loading-spinner" style="display:inline-block;width:1.5em;height:1.5em;border:3px solid #ccc;border-top:3px solid #8b7355;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-right:0.5em;"></span>Processing...';
+            const email = document.getElementById('forgotEmail').value;
+            try {
+                const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    forgotPasswordMessage.style.color = '#28a745';
+                    forgotPasswordMessage.textContent = 'A new password has been sent to your email.';
+                    setTimeout(() => { forgotPasswordModal.style.display = 'none'; }, 2000);
+                } else {
+                    forgotPasswordMessage.style.color = '#b94a48';
+                    forgotPasswordMessage.textContent = data.error || 'Email not found.';
+                }
+            } catch (err) {
+                forgotPasswordMessage.style.color = '#b94a48';
+                forgotPasswordMessage.textContent = 'An error occurred. Please try again.';
+            }
+        });
     
     const adminLoginBtn = document.getElementById('adminLoginBtn');
     const closeModalBtn = document.getElementById('closeModal');
