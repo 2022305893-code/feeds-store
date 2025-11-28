@@ -4868,11 +4868,17 @@
                 <!-- Recent Sales Table -->
                 <div class="recent-sales-section">
                     <h3>🛒 Recent Sales</h3>
+                    <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                        <input type="text" id="receiptSearchInput" placeholder="Search by Receipt Number..." style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; width: 220px;">
+                        <button id="clearReceiptSearchBtn" style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; background: #f5f5f5; cursor: pointer;">Clear</button>
+                    </div>
                     <div class="table-container">
                         <table class="recent-sales-table">
                             <thead>
                                 <tr>
+                                    <th>Receipt #</th>
                                     <th>Time</th>
+                                    <th>Staff</th>
                                     <th>Customer</th>
                                     <th>Items</th>
                                     <th>Total</th>
@@ -10623,6 +10629,10 @@
                 // Generate forecasts
                 generateForecasts();
                 await updateForecastDisplay();
+                // Force update of recent sales table after data loads
+                if (typeof updateRecentSalesTable === 'function') {
+                    updateRecentSalesTable();
+                }
                 
                 // Set up real-time monitoring
                 setupRealTimeForecasting();
@@ -10827,77 +10837,40 @@
                 console.log('📊 No sales data available for forecasting');
                 return;
             }
-            
-            // Validate sales data structure
-            if (!Array.isArray(salesData)) {
-                console.error('📊 Invalid sales data structure:', salesData);
-                return;
-            }
-            
-            // Check if sales data has the expected structure
-            const sampleSale = salesData[0];
-            if (!sampleSale || (!sampleSale.productId && !sampleSale.productName)) {
-                console.log('📊 Sales data structure:', sampleSale);
-                // Convert direct database format to expected format
-                const convertedSalesData = [];
-                
-                // Process each order and create individual sales records for each item
+            // Only use order-level objects for salesHistory (do not flatten to sale items)
+            // Calculate monthly sales by iterating over order items
+            const monthlySales = {};
+            salesData.forEach(order => {
+                const date = new Date(order.createdAt || order.orderDate || order.saleDate);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                if (!monthlySales[monthKey]) monthlySales[monthKey] = 0;
+                monthlySales[monthKey] += (order.total || order.totalAmount || 0);
+            });
+            // Generate forecasts for each product
+            products.forEach(product => {
+                // Gather all items for this product from all orders
+                const productSales = [];
                 salesData.forEach(order => {
                     if (order.items && Array.isArray(order.items)) {
                         order.items.forEach(item => {
-                            convertedSalesData.push({
-                                id: `${order.id}-${item.productId || Math.random()}`,
-                                productId: item.productId,
-                                productName: item.productName || 'Unknown Product',
-                                quantity: item.quantity || 1,
-                                unit: item.unit || 'sack',
-                                totalAmount: item.totalPrice || item.price || 0,
-                                saleDate: new Date(order.createdAt),
-                                customerName: order.customerName || 'Customer'
-                            });
-                        });
-                    } else {
-                        // Fallback for orders without items array
-                        convertedSalesData.push({
-                            id: order.id,
-                            productId: null,
-                            productName: 'Unknown Product',
-                            quantity: 1,
-                            unit: 'sack',
-                            totalAmount: order.total || 0,
-                            saleDate: new Date(order.createdAt),
-                            customerName: order.customerName || 'Customer'
+                            const productIdMatch = item.productId === product._id || 
+                                item.productId === product._id?.toString() ||
+                                item.productId?.toString() === product._id?.toString();
+                            const productNameMatch = item.productName === product.name;
+                            if (productIdMatch || productNameMatch) {
+                                productSales.push({
+                                    ...item,
+                                    saleDate: order.createdAt || order.orderDate || order.saleDate,
+                                    totalAmount: item.totalPrice || item.price || 0
+                                });
+                            }
                         });
                     }
                 });
-                
-                console.log('📊 Converted sales data:', convertedSalesData);
-                forecastData.salesHistory = convertedSalesData;
-            }
-            
-            // Calculate monthly sales
-            const monthlySales = calculateMonthlySales(forecastData.salesHistory);
-            
-            // Generate forecasts for each product
-            products.forEach(product => {
-                // Filter sales data for this specific product
-                const productSales = forecastData.salesHistory.filter(sale => {
-                    // Handle both string and ObjectId comparisons
-                    const productIdMatch = sale.productId === product._id || 
-                                         sale.productId === product._id?.toString() ||
-                                         sale.productId?.toString() === product._id?.toString();
-                    const productNameMatch = sale.productName === product.name;
-                    return productIdMatch || productNameMatch;
-                });
-                
-                console.log(`📊 Product ${product.name}: Found ${productSales.length} sales`);
-                
                 if (productSales.length > 0) {
                     const forecast = calculateProductForecast(productSales, product);
                     forecastData.forecasts[product._id] = forecast;
-                    console.log(`📊 Forecast for ${product.name}:`, forecast);
                 } else {
-                    // Create a default forecast for products with no sales
                     forecastData.forecasts[product._id] = {
                         currentSales: 0,
                         currentRevenue: 0,
@@ -10910,7 +10883,6 @@
                     };
                 }
             });
-            
             console.log('📊 Forecasts generated for', Object.keys(forecastData.forecasts).length, 'products');
         }
         
@@ -11367,6 +11339,22 @@
             
             // Update recent sales table
             updateRecentSalesTable();
+            // Attach search bar event listeners (only once)
+            setTimeout(() => {
+                const searchInput = document.getElementById('receiptSearchInput');
+                const clearBtn = document.getElementById('clearReceiptSearchBtn');
+                if (searchInput && !searchInput.dataset.listenerAttached) {
+                    searchInput.addEventListener('input', () => updateRecentSalesTable());
+                    searchInput.dataset.listenerAttached = 'true';
+                }
+                if (clearBtn && !clearBtn.dataset.listenerAttached) {
+                    clearBtn.addEventListener('click', () => {
+                        searchInput.value = '';
+                        updateRecentSalesTable();
+                    });
+                    clearBtn.dataset.listenerAttached = 'true';
+                }
+            }, 0);
             
             // Update forecast table
             updateForecastTable();
@@ -11504,98 +11492,108 @@
         
         // Update recent sales table with pagination
         function updateRecentSalesTable() {
+            // Use order-level objects for recent sales
             const salesData = forecastData.salesHistory;
             const tbody = document.getElementById('recentSalesTableBody');
-            
-            console.log('📊 Updating recent sales table with', salesData.length, 'sales');
-            
+            console.log('📊 Updating recent sales table with', salesData.length, 'orders');
             // Store all sales data
             forecastingSalesData = salesData || [];
-            
-            // Calculate total pages
-            totalForecastingPages = Math.max(1, Math.ceil(forecastingSalesData.length / forecastingItemsPerPage));
-            
-            // Reset to page 1 if current page is beyond total pages
+            // Sort all orders by date (orderDate, createdAt, or saleDate)
+            const sortedAllOrders = [...forecastingSalesData]
+                .sort((a, b) => new Date(b.orderDate || b.createdAt || b.saleDate) - new Date(a.orderDate || a.createdAt || a.saleDate));
+            const globallyNewestSaleDate = sortedAllOrders[0]?.orderDate || sortedAllOrders[0]?.createdAt || sortedAllOrders[0]?.saleDate;
+            // Pagination
+            totalForecastingPages = Math.max(1, Math.ceil(sortedAllOrders.length / forecastingItemsPerPage));
             if (currentForecastingPage > totalForecastingPages) {
                 currentForecastingPage = 1;
             }
-            
+            const startIndex = (currentForecastingPage - 1) * forecastingItemsPerPage;
+            const endIndex = startIndex + forecastingItemsPerPage;
+            let currentPageOrders = sortedAllOrders.slice(startIndex, endIndex);
+            // Search by receipt number (id)
+            const receiptSearchValue = (document.getElementById('receiptSearchInput')?.value || '').trim();
+            let filteredOrders = currentPageOrders;
+            if (receiptSearchValue) {
+                filteredOrders = currentPageOrders.filter(order => {
+                    const receiptNo = order.id ? order.id.toString() : '-';
+                    return receiptNo.includes(receiptSearchValue);
+                });
+            }
             // Update pagination display
             updateForecastingPagination();
-            
-            // Update total sales summary with ALL sales
+            // Update total sales summary with ALL orders
             updateRecentSalesSummary(forecastingSalesData);
-            
             // Show pagination controls
             const paginationControls = document.querySelector('.forecasting-pagination-controls');
             if (paginationControls) {
                 paginationControls.style.display = 'flex';
             }
-            
             if (forecastingSalesData.length === 0) {
                 console.log('📊 No sales data for recent sales table');
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #a09080;">No recent sales data</td></tr>';
                 return;
             }
-            
-            // Sort all sales first to find the globally newest one
-            const sortedAllSales = [...forecastingSalesData]
-                .sort((a, b) => new Date(b.orderDate || b.saleDate) - new Date(a.orderDate || a.saleDate));
-            const globallyNewestSaleDate = sortedAllSales[0]?.orderDate || sortedAllSales[0]?.saleDate;
-            
-            // Get current page data
-            const startIndex = (currentForecastingPage - 1) * forecastingItemsPerPage;
-            const endIndex = startIndex + forecastingItemsPerPage;
-            const currentPageSales = sortedAllSales.slice(startIndex, endIndex);
-            
-            tbody.innerHTML = currentPageSales.map((sale, index) => {
+            tbody.innerHTML = filteredOrders.map((order, index) => {
                 try {
-                    // Handle both orderDate and saleDate
-                    const dateStr = sale.orderDate || sale.saleDate;
+                    // Display only the 17th to 24th characters of the id as the receipt number
+                    let receiptNo = '-';
+                    if (order.id && typeof order.id === 'string' && order.id.length >= 24) {
+                        receiptNo = order.id.substring(16, 24);
+                    } else if (order.id) {
+                        receiptNo = order.id.toString();
+                    }
+                    // Handle both orderDate, createdAt, and saleDate
+                    const dateStr = order.orderDate || order.createdAt || order.saleDate;
                     const saleDate = new Date(dateStr);
-                const timeString = saleDate.toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                    // Get customer info - try different field names
-                    const customerName = sale.customerName || sale.customerInfo?.name || (sale.customerId?.name) || 'Customer';
-                    
-                    // Handle items display - orders have items array
+                    const timeString = saleDate.toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    // Staff name logic: try staffName, staff, staffId
+                    let staffName = '-';
+                    if (typeof order.staffName === 'string' && order.staffName.trim()) {
+                        staffName = order.staffName;
+                    } else if (order.staff && typeof order.staff === 'object') {
+                        if (order.staff.firstName && order.staff.lastName) {
+                            staffName = order.staff.firstName + ' ' + order.staff.lastName;
+                        } else if (order.staff.name) {
+                            staffName = order.staff.name;
+                        }
+                    } else if (typeof order.staffId === 'string' && order.staffId.length > 0) {
+                        staffName = order.staffId;
+                    }
+                    // Get customer info
+                    const customerName = order.customerName || order.customerInfo?.name || (order.customerId?.name) || 'Customer';
+                    // Items summary
                     let itemsSummary = 'Order';
                     let quantity = 0;
-                    if (sale.items && sale.items.length > 0) {
-                        itemsSummary = sale.items.map(i => i.name || i.productName).join(', ');
-                        quantity = sale.items.reduce((sum, i) => sum + (i.quantity || 1), 0);
-                    } else if (sale.productName) {
-                        itemsSummary = sale.productName;
-                        quantity = sale.quantity || 0;
+                    if (order.items && order.items.length > 0) {
+                        itemsSummary = order.items.map(i => i.name || i.productName).join(', ');
+                        quantity = order.items.reduce((sum, i) => sum + (i.quantity || 1), 0);
                     }
-                    
-                const status = sale.status || 'completed';
-                
-                // Highlight ONLY the globally newest sale if it's on page 1
-                const isGloballyNewest = dateStr === globallyNewestSaleDate && currentForecastingPage === 1;
-                const highlightClass = isGloballyNewest ? 'newest-sale' : '';
-                const highlightStyle = isGloballyNewest ? 'background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); border-left: 4px solid #4CAF50; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);' : '';
-                
-                // Handle both total and totalAmount
-                const totalAmount = sale.total || sale.totalAmount || 0;
-                
-                return `
-                    <tr class="${highlightClass}" style="${highlightStyle}">
-                        <td>${timeString}${isGloballyNewest ? ' 🆕' : ''}</td>
-                        <td>${customerName}</td>
+                    const status = order.status || 'completed';
+                    // Highlight ONLY the globally newest sale if it's on page 1
+                    const isGloballyNewest = dateStr === globallyNewestSaleDate && currentForecastingPage === 1;
+                    const highlightClass = isGloballyNewest ? 'newest-sale' : '';
+                    const highlightStyle = isGloballyNewest ? 'background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); border-left: 4px solid #4CAF50; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);' : '';
+                    // Handle both total and totalAmount
+                    const totalAmount = order.total || order.totalAmount || 0;
+                    return `
+                        <tr class="${highlightClass}" style="${highlightStyle}">
+                            <td>${receiptNo}</td>
+                            <td>${timeString}${isGloballyNewest ? ' 🆕' : ''}</td>
+                            <td>${staffName}</td>
+                            <td>${customerName}</td>
                             <td>${quantity} items - ${itemsSummary}</td>
                             <td>₱${totalAmount.toLocaleString()}</td>
-                        <td class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</td>
-                    </tr>
-                `;
+                            <td class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</td>
+                        </tr>
+                    `;
                 } catch (error) {
-                    console.error('Error rendering forecasting sale row:', error, sale);
-                    return '<tr><td colspan="5">Error displaying sale</td></tr>';
+                    console.error('Error rendering forecasting sale row:', error, order);
+                    return '<tr><td colspan="7">Error displaying sale</td></tr>';
                 }
             }).join('');
         }

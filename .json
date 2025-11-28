@@ -1,0 +1,78 @@
+{
+  "name": "Facebook Webhook Verification",
+  "nodes": [
+    {
+      "id": "Webhook_FB_Verification",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [280, 300],
+      "parameters": {
+        "path": "fb-webhook",
+        "httpMethod": "GET",
+        "responseMode": "onReceived",
+        "responseData": "text",
+        "responseText": "VERIFIED",
+        "options": {}
+      }
+    },
+    {
+      "id": "Webhook_FB_Events",
+      "name": "Webhook (POST)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [280, 500],
+      "parameters": {
+        "path": "fb-webhook",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "responseData": "json",
+        "options": {}
+      }
+    },
+    {
+      "id": "Function_Verify",
+      "name": "Function",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [540, 300],
+      "parameters": {
+        "functionCode": "const query = $json.query;\nconst VERIFY_TOKEN = 'nat123';\n\nif (query['hub.verify_token'] === VERIFY_TOKEN) {\n  return [{ response: query['hub.challenge'] }];\n} else {\n  return [{ response: 'Error: Wrong verify token' }];\n}"
+      }
+    },
+    {
+      "id": "Respond_Challenge",
+      "name": "Respond to Facebook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 300],
+      "parameters": {
+        "responseBody": "={{ $json[\"response\"] }}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook_FB_Verification": {
+      "main": [
+        [
+          {
+            "node": "Function_Verify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function_Verify": {
+      "main": [
+        [
+          {
+            "node": "Respond_Challenge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -7,6 +7,8 @@ const emailService = new EmailService();
 
 
 const createOrder = async (req, res) => {
+    console.log('👤 req.user in createOrder:', req.user);
+    console.log('📝 staffName resolved:', staffName);
   try {
     console.log('📝 Creating new order with data:', req.body);
     
@@ -19,8 +21,22 @@ const createOrder = async (req, res) => {
       tax,
       total,
       staffId,
-      staffName
+      staffName: bodyStaffName
     } = req.body;
+
+    // If staffName is not provided in the request, use the logged-in user's name
+    let staffName = bodyStaffName;
+    if (!staffName && req.user) {
+      if (req.user.firstName && req.user.lastName) {
+        staffName = `${req.user.firstName} ${req.user.lastName}`;
+      } else if (req.user.fullName) {
+        staffName = req.user.fullName;
+      } else if (req.user.email) {
+        staffName = req.user.email;
+      } else {
+        staffName = 'Staff';
+      }
+    }
     
     
     if (!items || items.length === 0) {
