@@ -12162,11 +12162,11 @@
                     const staffName = (typeof order.staffName === 'string' && order.staffName.trim()) ? order.staffName : '-';
                     // Customer
                     const customerName = order.customerName || order.customerInfo?.name || (order.customerId?.name) || 'Customer';
-                    // Items summary
+                    // Items summary (fix: use productName and sum quantity)
                     let itemsSummary = 'Order';
                     let quantity = 0;
                     if (order.items && order.items.length > 0) {
-                        itemsSummary = order.items.map(i => i.name || i.productName).join(', ');
+                        itemsSummary = order.items.map(i => i.productName || i.name).join(', ');
                         quantity = order.items.reduce((sum, i) => sum + (i.quantity || 1), 0);
                     }
                     const status = order.status || 'completed';
