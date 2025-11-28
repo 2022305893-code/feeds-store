@@ -1,3 +1,30 @@
+// Admin: Set new password for any staff by ID
+const adminSetStaffPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+    if (!newPassword) {
+      return res.status(400).json({ success: false, error: 'New password is required.' });
+    }
+    const staff = await Staff.findById(id);
+    if (!staff) {
+      return res.status(404).json({ success: false, error: 'Staff not found.' });
+    }
+    staff.password = newPassword;
+    staff.temporaryPassword = null;
+    await staff.save();
+    // Also update User collection if a user with this email exists
+    const user = await User.findOne({ email: staff.email });
+    if (user) {
+      user.password = newPassword;
+      await user.save();
+    }
+    res.json({ success: true, message: 'Password updated successfully.' });
+  } catch (error) {
+    console.error('Error setting staff password (admin):', error);
+    res.status(500).json({ success: false, error: 'Failed to set password', details: error.message });
+  }
+};
 // Change password for staff (self-service)
 const changeStaffPassword = async (req, res) => {
   try {
@@ -560,5 +587,6 @@ module.exports = {
   checkEmailAvailability,
   pauseStaff,
   activateStaff,
-  changeStaffPassword
+  changeStaffPassword,
+  adminSetStaffPassword
 };

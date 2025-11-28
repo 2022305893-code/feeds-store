@@ -1,3 +1,6 @@
+const { adminSetStaffPassword } = require('../controllers/staffController');
+// Admin: Set new password for any staff by ID
+router.post('/:id/set-password', authenticateToken, requireAdmin, adminSetStaffPassword);
 
 const express = require('express');
 const router = express.Router();
