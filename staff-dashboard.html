@@ -1184,7 +1184,12 @@
                 document.getElementById('changePasswordModal').style.display = 'none';
                 // Restore focus to qrInput if present
                 const qrInput = document.getElementById('qrInput');
-                if (qrInput) setTimeout(() => qrInput.focus(), 100);
+                if (qrInput) setTimeout(() => {
+                    const changePassModal = document.getElementById('changePasswordModal');
+                    if (!changePassModal || changePassModal.style.display === 'none') {
+                        qrInput.focus();
+                    }
+                }, 100);
             }
             async function submitChangePassword(event) {
                 event.preventDefault();
@@ -2194,7 +2199,10 @@
             // Keep search bar focused for scanner
             const qrInput = document.getElementById('qrInput');
             if (qrInput) {
-                qrInput.focus();
+                const changePassModal = document.getElementById('changePasswordModal');
+                if (!changePassModal || changePassModal.style.display === 'none') {
+                    qrInput.focus();
+                }
                 console.log('🔧 Search bar focused for scanner');
             }
             
@@ -2232,7 +2240,10 @@
                 
                 // Refocus search bar
                 if (qrInput && document.activeElement !== qrInput) {
-                    qrInput.focus();
+                    const changePassModal = document.getElementById('changePasswordModal');
+                    if (!changePassModal || changePassModal.style.display === 'none') {
+                        qrInput.focus();
+                    }
                     console.log('🔧 Search bar re-focused for scanner');
                 }
             }, 1000);
