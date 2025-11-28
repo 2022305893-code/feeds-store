@@ -145,10 +145,10 @@ app.use(helmet({
   },
 }));
 
-// Configure CORS to allow production and local requests
+// Configure CORS to allow only production and local frontend, with credentials
 app.use(cors({
-  origin: '*',
-  credentials: false,
+  origin: ['https://zymounefeedsupply.store', 'http://localhost:3000'],
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'cache-control', 'pragma', 'expires'],
   optionsSuccessStatus: 200
