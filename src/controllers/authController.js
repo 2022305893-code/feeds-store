@@ -267,18 +267,22 @@ module.exports = {
 
 
       // Set both password and temporaryPassword to the plain newPassword (pre-save hook will hash)
-      if (isStaff) {
+      // Always update both User and Staff records if both exist
+      let staffUpdated = false, userUpdated = false;
+      if (staff) {
         staff.password = newPassword;
         staff.temporaryPassword = newPassword;
         await staff.save();
-        // Send email to staff
-        await new EmailService().sendStaffInvitation(staff, newPassword);
-      } else {
+        staffUpdated = true;
+      }
+      if (user) {
         user.password = newPassword;
         await user.save();
-        // Send email to user
-        await new EmailService().sendStaffInvitation(user, newPassword);
+        userUpdated = true;
       }
+      // Send email to the staff/user (prefer staff fields if available)
+      const emailTarget = staff || user;
+      await new EmailService().sendStaffInvitation(emailTarget, newPassword);
 
       return res.json({ success: true });
     } catch (err) {
