@@ -17,6 +17,12 @@ const changeStaffPassword = async (req, res) => {
     staff.password = newPassword;
     staff.temporaryPassword = null;
     await staff.save();
+    // Also update User collection if a user with this email exists
+    const user = await User.findOne({ email: staff.email });
+    if (user) {
+      user.password = newPassword;
+      await user.save();
+    }
     res.json({ success: true, message: 'Password changed successfully.' });
   } catch (error) {
     console.error('Error changing staff password:', error);
