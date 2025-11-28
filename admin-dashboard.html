@@ -12092,17 +12092,25 @@
                     params.append('startDate', startDate.toISOString());
                     params.append('endDate', endDate.toISOString());
                     params.append('_t', Date.now());
+                    console.log('[DEBUG] Fetching recent sales:', `${API_BASE}/orders/summary/sales?${params}`);
                     const response = await fetch(`${API_BASE}/orders/summary/sales?${params}`);
+                    console.log('[DEBUG] Response status:', response.status);
                     if (response.ok) {
                         const data = await response.json();
+                        console.log('[DEBUG] API /orders/summary/sales data:', data);
                         // Use 'orders' instead of 'recentOrders' to get items array
                         if (Array.isArray(data.orders)) {
+                            console.log('[DEBUG] data.orders found, length:', data.orders.length);
                             allRecentOrders = data.orders;
                             updateRecentSalesTableLive(allRecentOrders);
+                        } else {
+                            console.warn('[DEBUG] data.orders missing or not an array:', data.orders);
                         }
+                    } else {
+                        console.error('[DEBUG] Response not OK:', response.status, response.statusText);
                     }
                 } catch (err) {
-                    console.error('Error loading recent sales:', err);
+                    console.error('[DEBUG] Error loading recent sales:', err);
                 }
             }
 
