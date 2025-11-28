@@ -12108,16 +12108,8 @@
                     const tbody = document.getElementById('recentSalesTableBody');
                     if (!tbody) return;
                     // Add a visible marker row to confirm this function is running (LIVE)
-                    document.getElementById('recentSalesTableBody').innerHTML = '<tr style="background:#ffeeba;"><td colspan="7" style="color:#856404;font-weight:bold;">STAFFNAME SYNCED: updateRecentSalesTable() RAN (LIVE)</td></tr>';
-                    // Extra debug: log all orders
-                    console.log('🧑‍💼 Orders array:', orders);
+                    document.getElementById('recentSalesTableBody').innerHTML = '';
                     tbody.innerHTML = orders.map(order => {
-                        if (!order) {
-                            console.warn('⚠️ Empty order object in map!');
-                            return '';
-                        }
-                        // Debug: log the staffName directly
-                        console.log('🧑‍💼 Rendering order row staffName:', order.staffName, order);
                         // Receipt number logic
                         let receiptNo = '-';
                         if (order.id && typeof order.id === 'string' && order.id.length >= 24) {
@@ -12134,21 +12126,8 @@
                             hour: '2-digit',
                             minute: '2-digit'
                         });
-                        // Staff name logic: force use of staffName field
-                        let staffName = '-';
-                        if (typeof order.staffName === 'string' && order.staffName.trim()) {
-                            staffName = order.staffName;
-                        } else if (typeof order.staff_name === 'string' && order.staff_name.trim()) {
-                            staffName = order.staff_name;
-                        } else if (order.staff && typeof order.staff === 'object') {
-                            if (order.staff.firstName && order.staff.lastName) {
-                                staffName = order.staff.firstName + ' ' + order.staff.lastName;
-                            } else if (order.staff.name) {
-                                staffName = order.staff.name;
-                            }
-                        } else if (typeof order.staffId === 'string' && order.staffId.length > 0) {
-                            staffName = order.staffId;
-                        }
+                        // Staff name logic: always use order.staffName if present
+                        const staffName = (typeof order.staffName === 'string' && order.staffName.trim()) ? order.staffName : '-';
                         // Customer
                         const customerName = order.customerName || order.customerInfo?.name || (order.customerId?.name) || 'Customer';
                         // Items summary
@@ -12164,7 +12143,7 @@
                             <tr>
                                 <td>${receiptNo}</td>
                                 <td>${timeString}</td>
-                                <td style="color:blue;font-weight:bold;">${staffName} <span style='color:red'>(TEST)</span></td>
+                                <td>${staffName}</td>
                                 <td>${customerName}</td>
                                 <td>${quantity} items - ${itemsSummary}</td>
                                 <td>₱${totalAmount.toLocaleString()}</td>
@@ -12172,8 +12151,6 @@
                             </tr>
                         `;
                     }).join('');
-                    // Log the final HTML for the table body
-                    console.log('🟦 Final tbody HTML:', tbody.innerHTML);
                 }
                 try {
                     switchSection('dashboard');
