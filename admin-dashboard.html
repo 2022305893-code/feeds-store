@@ -12149,6 +12149,7 @@
                         itemsSummary = order.items.map(i => i.productName || i.name).join(', ');
                         quantity = order.items.reduce((sum, i) => sum + (i.quantity || 1), 0);
                     }
+                    console.log('🧑‍💼 Rendering order row:', { ...order, debugQuantity: quantity });
                     // Receipt number logic
                     let receiptNo = '-';
                     if (order.id && typeof order.id === 'string' && order.id.length >= 24) {
