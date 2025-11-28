@@ -7,6 +7,49 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/xlsx@latest/dist/xlsx.full.min.js"></script>
     <style>
+                .header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    background: #fff8e1;
+                    padding: 1.2rem 2.5rem 1.2rem 2.5rem;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                    border-bottom: 1px solid #f0e6c0;
+                }
+                .logo {
+                    font-size: 1.6rem;
+                    font-weight: 700;
+                    color: #8b7355;
+                    letter-spacing: 1px;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    user-select: none;
+                }
+                .user-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 1.2rem;
+                }
+                .user-info #userName {
+                    font-size: 1.1rem;
+                    color: #5d4037;
+                    font-weight: 500;
+                }
+                .logout-btn {
+                    background: #d32f2f;
+                    color: #fff;
+                    border: none;
+                    padding: 0.5rem 1.2rem;
+                    border-radius: 5px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+                .logout-btn:hover {
+                    background: #b71c1c;
+                }
         * {
             margin: 0;
             padding: 0;
