@@ -8,7 +8,6 @@ const emailService = new EmailService();
 
 const createOrder = async (req, res) => {
     console.log('👤 req.user in createOrder:', req.user);
-    console.log('📝 staffName resolved:', staffName);
   try {
     console.log('📝 Creating new order with data:', req.body);
     
@@ -37,6 +36,7 @@ const createOrder = async (req, res) => {
         staffName = 'Staff';
       }
     }
+    console.log('📝 staffName resolved:', staffName);
     
     
     if (!items || items.length === 0) {
