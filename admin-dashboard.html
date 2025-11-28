@@ -40,49 +40,54 @@
             // Admin Change Password Modal logic (global, not inside displayStaff)
             let adminChangePassStaffId = null;
             function openAdminChangePasswordModal(staffId, staffName) {
-            adminChangePassStaffId = staffId;
-            document.getElementById('adminChangePasswordModal').style.display = 'flex';
-            document.getElementById('adminChangePasswordMessage').textContent = '';
-            document.getElementById('adminNewPassword').value = '';
-            document.getElementById('adminChangePasswordStaffName').textContent = staffName;
-        }
-        function closeAdminChangePasswordModal() {
-            document.getElementById('adminChangePasswordModal').style.display = 'none';
-            adminChangePassStaffId = null;
-        }
-        async function submitAdminChangePassword(event) {
-            event.preventDefault();
-            const newPassword = document.getElementById('adminNewPassword').value;
-            const messageDiv = document.getElementById('adminChangePasswordMessage');
-            messageDiv.textContent = '';
-            if (!adminChangePassStaffId) {
-                messageDiv.textContent = 'No staff selected.';
-                return;
+                adminChangePassStaffId = staffId;
+                document.getElementById('adminChangePasswordModal').style.display = 'flex';
+                document.getElementById('adminChangePasswordMessage').textContent = '';
+                document.getElementById('adminNewPassword').value = '';
+                document.getElementById('adminChangePasswordStaffName').textContent = staffName;
             }
-            try {
-                const response = await fetch(`${API_BASE}/staff/${adminChangePassStaffId}/set-password`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify({ newPassword })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    messageDiv.style.color = '#28a745';
-                    messageDiv.textContent = 'Password updated successfully!';
-                    setTimeout(closeAdminChangePasswordModal, 1500);
-                } else {
-                    messageDiv.style.color = '#b94a48';
-                    messageDiv.textContent = data.error || 'Failed to update password.';
-                }
-            } catch (err) {
+            function closeAdminChangePasswordModal() {
+                document.getElementById('adminChangePasswordModal').style.display = 'none';
+                adminChangePassStaffId = null;
+            }
+            async function submitAdminChangePassword(event) {
+                event.preventDefault();
+                const newPassword = document.getElementById('adminNewPassword').value;
+                const messageDiv = document.getElementById('adminChangePasswordMessage');
                 messageDiv.style.color = '#b94a48';
-                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.innerHTML = '<span class="loading-spinner" style="display:inline-block;width:1.5em;height:1.5em;border:3px solid #ccc;border-top:3px solid #8b7355;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-right:0.5em;"></span>Updating password...';
+                if (!adminChangePassStaffId) {
+                    messageDiv.textContent = 'No staff selected.';
+                    return;
+                }
+                try {
+                    const response = await fetch(`${API_BASE}/staff/${adminChangePassStaffId}/set-password`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({ newPassword })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        messageDiv.style.color = '#28a745';
+                        messageDiv.textContent = 'Password updated successfully!';
+                        setTimeout(closeAdminChangePasswordModal, 1500);
+                    } else {
+                        messageDiv.style.color = '#b94a48';
+                        messageDiv.textContent = data.error || 'Failed to update password.';
+                    }
+                } catch (err) {
+                    messageDiv.style.color = '#b94a48';
+                    messageDiv.textContent = 'An error occurred. Please try again.';
+                }
             }
-        }
-        </script>
+            // Spinner animation
+            const style = document.createElement('style');
+            style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+            document.head.appendChild(style);
+            </script>
         
         .stat-card {
             background: #f5f5dc;
