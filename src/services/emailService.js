@@ -87,7 +87,7 @@ class EmailService {
                     <p><strong>Important:</strong> Please change your password immediately after your first login for security reasons.</p>
                     
                     <div style="text-align: center;">
-                        <a href="https://zymounefeedsupply.store/" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Access Admin Dashboard</a>
+                        <a href="https://zymounefeedsupply.store/" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">LOG IN HERE</a>
                     </div>
                 </div>
                 <div class="footer">
