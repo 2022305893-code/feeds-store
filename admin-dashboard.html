@@ -12142,13 +12142,13 @@
                 const tbody = document.getElementById('recentSalesTableBody');
                 if (!tbody) return;
                 tbody.innerHTML = orders.map(order => {
+                    // Declare once at the top
                     let itemsSummary = 'Order';
                     let quantity = 0;
                     if (order.items && order.items.length > 0) {
                         itemsSummary = order.items.map(i => i.productName || i.name).join(', ');
                         quantity = order.items.reduce((sum, i) => sum + (i.quantity || 1), 0);
                     }
-                    // Add debugQuantity to log without redeclaring itemsSummary
                     console.log('🧑‍💼 Rendering order row:', { ...order, debugQuantity: quantity });
                     // Receipt number logic
                     let receiptNo = '-';
