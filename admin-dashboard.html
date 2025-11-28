@@ -13952,6 +13952,7 @@
 <script>
 // Admin Change Password Modal logic (global, not inside displayStaff)
 let adminChangePassStaffId = null;
+function openAdminChangePasswordModal(staffId, staffName) {
     adminChangePassStaffId = staffId;
     document.getElementById('adminChangePasswordModal').style.display = 'flex';
     document.getElementById('adminChangePasswordMessage').textContent = '';
