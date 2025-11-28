@@ -16,77 +16,72 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f5dc;
-            color: black;
+
+        <!-- Admin Change Password Modal -->
+        <div id="adminChangePasswordModal" class="modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); align-items:center; justify-content:center;">
+            <div class="modal-content" style="background:#fff; padding:2rem; border-radius:10px; max-width:400px; margin:auto; position:relative;">
+                <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2 style="margin:0;">Change Staff Password</h2>
+                    <span class="close" onclick="closeAdminChangePasswordModal()" style="cursor:pointer; font-size:2rem;">&times;</span>
+                </div>
+                <div style="margin-bottom:1rem; font-weight:600;">Staff: <span id="adminChangePasswordStaffName"></span></div>
+                <form id="adminChangePasswordForm" onsubmit="submitAdminChangePassword(event)">
+                    <div style="margin-bottom:1rem;">
+                        <label for="adminNewPassword">New Password</label>
+                        <input type="password" id="adminNewPassword" name="adminNewPassword" required minlength="6" autocomplete="new-password" style="width:100%; padding:0.5rem; margin-top:0.25rem;" />
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;">Update Password</button>
+                </form>
+                <div id="adminChangePasswordMessage" style="margin-top:1rem; color:#b94a48;"></div>
+            </div>
+        </div>
+        <script>
+        // Admin Change Password Modal logic (global, not inside displayStaff)
+        let adminChangePassStaffId = null;
+        function openAdminChangePasswordModal(staffId, staffName) {
+            adminChangePassStaffId = staffId;
+            document.getElementById('adminChangePasswordModal').style.display = 'flex';
+            document.getElementById('adminChangePasswordMessage').textContent = '';
+            document.getElementById('adminNewPassword').value = '';
+            document.getElementById('adminChangePasswordStaffName').textContent = staffName;
         }
-        
-        * {
-            color: black !important;
+        function closeAdminChangePasswordModal() {
+            document.getElementById('adminChangePasswordModal').style.display = 'none';
+            adminChangePassStaffId = null;
         }
-        
-        .header {
-            background: linear-gradient(135deg, #d2b48c 0%, #bc9a6a 100%);
-            color: #8b7355;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        async function submitAdminChangePassword(event) {
+            event.preventDefault();
+            const newPassword = document.getElementById('adminNewPassword').value;
+            const messageDiv = document.getElementById('adminChangePasswordMessage');
+            messageDiv.textContent = '';
+            if (!adminChangePassStaffId) {
+                messageDiv.textContent = 'No staff selected.';
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE}/staff/${adminChangePassStaffId}/set-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ newPassword })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    messageDiv.style.color = '#28a745';
+                    messageDiv.textContent = 'Password updated successfully!';
+                    setTimeout(closeAdminChangePasswordModal, 1500);
+                } else {
+                    messageDiv.style.color = '#b94a48';
+                    messageDiv.textContent = data.error || 'Failed to update password.';
+                }
+            } catch (err) {
+                messageDiv.style.color = '#b94a48';
+                messageDiv.textContent = 'An error occurred. Please try again.';
+            }
         }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .logout-btn {
-            background: rgba(139, 115, 85, 0.2);
-            color: #8b7355;
-            border: 1px solid rgba(139, 115, 85, 0.3);
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .logout-btn:hover {
-            background: rgba(139, 115, 85, 0.3);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .welcome-section {
-            background: #f5f5dc;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .welcome-section h1 {
-            color: #8b7355;
-            margin-bottom: 0.5rem;
-        }
-        
-        .welcome-section p {
-            color: #a09080;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
+        </script>
         
         .stat-card {
             background: #f5f5dc;
