@@ -11392,22 +11392,32 @@
                 if (response.ok) {
                     const data = await response.json();
                     console.log('📊 Daily sales data:', data);
-                    
+
+                    // Use summary for stats
                     const summary = data.summary || {};
                     const revenue = summary.totalRevenue || 0;
                     const orders = summary.totalOrders || 0;
-                    
                     document.getElementById('todaySales').textContent = `₱${revenue.toFixed(2)}`;
                     document.getElementById('todayOrders').textContent = `${orders} orders`;
-                    
+
+                    // Use recentOrders for the Recent Sales table
+                    if (Array.isArray(data.recentOrders)) {
+                        forecastData.salesHistory = data.recentOrders.map(order => ({
+                            ...order,
+                            // Fallbacks for compatibility with table rendering
+                            id: order._id || order.id,
+                            receiptNumber: order.orderNumber || order.receiptNumber,
+                            totalAmount: order.total,
+                        }));
+                        updateRecentSalesTable();
+                    }
+
                     // Get yesterday's data
                     const { startDate: yesterdayStart, endDate: yesterdayEnd } = getDateRangeForPeriod('yesterday');
-                    
                     const yesterdayParams = new URLSearchParams();
                     yesterdayParams.append('startDate', yesterdayStart.toISOString());
                     yesterdayParams.append('endDate', yesterdayEnd.toISOString());
                     yesterdayParams.append('_t', Date.now());
-                    
                     const yesterdayResponse = await fetch(`${API_BASE}/orders/summary/sales?${yesterdayParams}`, {
                         method: 'GET',
                         headers: {
@@ -11417,7 +11427,6 @@
                             'Expires': '0'
                         }
                     });
-                    
                     if (yesterdayResponse.ok) {
                         const yesterdayData = await yesterdayResponse.json();
                         const yesterdaySummary = yesterdayData.summary || {};
@@ -11427,15 +11436,13 @@
                         document.getElementById('yesterdaySales').textContent = '₱0.00';
                         document.getElementById('yesterdayOrders').textContent = '0 orders';
                     }
-                    
+
                     // Get this week's data
                     const { startDate: weekStart, endDate: weekEnd } = getDateRangeForPeriod('week');
-                    
                     const weekParams = new URLSearchParams();
                     weekParams.append('startDate', weekStart.toISOString());
                     weekParams.append('endDate', weekEnd.toISOString());
                     weekParams.append('_t', Date.now());
-                    
                     const weekResponse = await fetch(`${API_BASE}/orders/summary/sales?${weekParams}`, {
                         method: 'GET',
                         headers: {
@@ -11445,7 +11452,6 @@
                             'Expires': '0'
                         }
                     });
-                    
                     if (weekResponse.ok) {
                         const weekData = await weekResponse.json();
                         const weekSummary = weekData.summary || {};
@@ -11453,7 +11459,6 @@
                         const weekOrders = weekSummary.totalOrders || 0;
                         document.getElementById('weekSales').textContent = `₱${weekRevenue.toFixed(2)}`;
                         document.getElementById('weekOrders').textContent = `${weekOrders} orders`;
-                        
                         // Calculate daily average for the week
                         const dailyAverage = weekRevenue / 7;
                         const avgOrders = weekOrders / 7;
@@ -11465,7 +11470,6 @@
                         document.getElementById('dailyAverage').textContent = '₱0.00';
                         document.getElementById('avgOrders').textContent = '0 orders/day';
                     }
-                    
                 } else {
                     // Fallback to zero values if API call fails
                     document.getElementById('todaySales').textContent = '₱0.00';
