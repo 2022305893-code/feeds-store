@@ -344,17 +344,24 @@ const getSalesSummary = async (req, res) => {
         }
       }
     ]);
-    
+
     const result = summary[0] || {
       totalOrders: 0,
       totalRevenue: 0,
       totalTax: 0,
       totalSubtotal: 0
     };
-    
+
+    // Fetch recent orders (limit 10, sorted by orderDate desc)
+    const recentOrders = await Order.find(matchQuery)
+      .sort({ orderDate: -1 })
+      .limit(10)
+      .select('receiptNumber staffName orderDate total subtotal tax');
+
     res.json({
       success: true,
-      summary: result
+      summary: result,
+      recentOrders
     });
   } catch (error) {
     console.error('Error fetching sales summary:', error);
