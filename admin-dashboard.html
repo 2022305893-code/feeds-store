@@ -12109,13 +12109,17 @@
                     if (response.ok) {
                         const data = await response.json();
                         console.log('[DEBUG] API /api/orders/summary data:', data);
-                        // Use 'orders' instead of 'recentOrders' to get items array
+                        // Use 'orders' or fallback to 'recentOrders' to get items array
                         if (Array.isArray(data.orders)) {
                             console.log('[DEBUG] data.orders found, length:', data.orders.length);
                             allRecentOrders = data.orders;
                             updateRecentSalesTableLive(allRecentOrders);
+                        } else if (Array.isArray(data.recentOrders)) {
+                            console.log('[DEBUG] data.recentOrders found, length:', data.recentOrders.length);
+                            allRecentOrders = data.recentOrders;
+                            updateRecentSalesTableLive(allRecentOrders);
                         } else {
-                            console.warn('[DEBUG] data.orders missing or not an array:', data.orders);
+                            console.warn('[DEBUG] data.orders and data.recentOrders missing or not arrays:', data.orders, data.recentOrders);
                         }
                     } else {
                         console.error('[DEBUG] Response not OK:', response.status, response.statusText);
