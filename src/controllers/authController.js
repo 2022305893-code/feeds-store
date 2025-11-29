@@ -251,13 +251,15 @@ module.exports = {
       const { email } = req.body;
       if (!email) return res.status(400).json({ error: 'Email is required.' });
 
+      const normalizedEmail = email.trim().toLowerCase();
       // Try to find user in User collection
-      let user = await User.findOne({ email });
+      let user = await User.findOne({ email: normalizedEmail });
       let staff = null;
       let isStaff = false;
       if (!user) {
-        staff = await Staff.findOne({ email });
-        if (!staff) return res.status(404).json({ error: 'Email not found.' });
+        staff = await Staff.findOne({ email: normalizedEmail });
+        console.log('[DEBUG] Staff lookup:', { email: normalizedEmail, staffFound: !!staff });
+        if (!staff) return res.status(404).json({ error: 'Email not found.', debugInfo: { staffFound: false, normalizedEmail } });
         isStaff = true;
       }
 
