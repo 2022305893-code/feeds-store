@@ -70,6 +70,23 @@ const changeStaffPassword = async (req, res) => {
       isMatch
     });
     if (!isMatch) {
+      // Extra debug: show what is being compared when old password is incorrect
+      const bcrypt = require('bcryptjs');
+      let plainVsHash = false;
+      let hashVsHash = false;
+      try {
+        // Compare entered oldPassword as plain text to stored hash
+        plainVsHash = await bcrypt.compare(oldPassword, staff.password);
+        // Compare entered oldPassword as if it were a hash (not typical, but for debug)
+        hashVsHash = oldPassword === staff.password;
+      } catch (e) {}
+      console.log('[DEBUG] Old password incorrect:', {
+        email: staff.email,
+        enteredOldPassword: oldPassword,
+        storedPasswordHash: staff.password,
+        plainVsHash,
+        hashVsHash
+      });
       return res.status(401).json({ success: false, error: 'Old password is incorrect.' });
     }
     staff.password = newPassword;
