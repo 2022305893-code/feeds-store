@@ -76,19 +76,11 @@ class EmailService {
                         <p><strong>Role:</strong> ${staffData.role.charAt(0).toUpperCase() + staffData.role.slice(1)}</p>
                     </div>
                     
-                    <h3>🚀 Getting Started:</h3>
-                    <ol>
-                        <li>Go to the admin dashboard: <a href="https://zymounefeedsupply.store/">Admin Dashboard</a></li>
-                        <li>Use your email and the temporary password above</li>
-                        <li>Change your password on first login</li>
-                        <li>Start managing the store!</li>
-                    </ol>
+                      <p><strong>Important:</strong> Please change your password immediately after your first login for security reasons.</p>
                     
-                    <p><strong>Important:</strong> Please change your password immediately after your first login for security reasons.</p>
-                    
-                    <div style="text-align: center;">
+                      <div style="text-align: center;">
                         <a href="https://zymounefeedsupply.store/" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">LOG IN HERE</a>
-                    </div>
+                      </div>
                 </div>
                 <div class="footer">
                     <p>This is an automated message from ZYMOUNE Management System.</p>
