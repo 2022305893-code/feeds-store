@@ -44,20 +44,30 @@ const changeStaffPassword = async (req, res) => {
     if (!staff) {
       return res.status(404).json({ success: false, error: 'Staff not found.' });
     }
-    // Check old password against both main and temporary password
+    // Check old password against both main and temporary password, with detailed debug logs
+    const bcrypt = require('bcryptjs');
     let isMatch = await staff.correctPassword(oldPassword, staff.password);
     let matchedField = 'password';
+    let tempMatch = false;
     if (!isMatch && staff.temporaryPassword) {
-      isMatch = await staff.correctPassword(oldPassword, staff.temporaryPassword);
-      if (isMatch) matchedField = 'temporaryPassword';
+      tempMatch = await staff.correctPassword(oldPassword, staff.temporaryPassword);
+      if (tempMatch) {
+        isMatch = true;
+        matchedField = 'temporaryPassword';
+      }
     }
-    // Debug: log which field matched and the hashes
+    // Debug: log detailed comparison info
+    const passwordCompare = await bcrypt.compare(oldPassword, staff.password);
+    const tempPasswordCompare = staff.temporaryPassword ? await bcrypt.compare(oldPassword, staff.temporaryPassword) : null;
     console.log('[DEBUG] Change password attempt:', {
       email: staff.email,
+      oldPasswordAttempt: oldPassword,
+      passwordHash: staff.password,
+      tempPasswordHash: staff.temporaryPassword,
+      passwordCompare,
+      tempPasswordCompare,
       matchedField,
-      password: staff.password,
-      temporaryPassword: staff.temporaryPassword,
-      oldPasswordAttempt: oldPassword
+      isMatch
     });
     if (!isMatch) {
       return res.status(401).json({ success: false, error: 'Old password is incorrect.' });
