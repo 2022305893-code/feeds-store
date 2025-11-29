@@ -2168,7 +2168,7 @@
                     return;
                 }
                 
-                // // Don't refocus if:
+                // // // Don't refocus if:
                 // 1. User is typing in payment amount
                 // 2. Product modal is open
                 // 3. Payment section is open
@@ -3787,6 +3787,57 @@
                 closeProductModal();
             }
         }
+    </script>
+    
+    <script>
+function openChangePasswordModal() {
+    document.getElementById('changePasswordModal').style.display = 'flex';
+    document.getElementById('changePasswordMessage').textContent = '';
+    document.getElementById('oldPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    var qrInput = document.getElementById('qrInput');
+    if (qrInput) qrInput.blur();
+}
+function closeChangePasswordModal() {
+    document.getElementById('changePasswordModal').style.display = 'none';
+    var qrInput = document.getElementById('qrInput');
+    if (qrInput) setTimeout(function() {
+        var changePassModal = document.getElementById('changePasswordModal');
+        if (!changePassModal || changePassModal.style.display === 'none') {
+            qrInput.focus();
+        }
+    }, 100);
+}
+async function submitChangePassword(event) {
+    event.preventDefault();
+    var oldPassword = document.getElementById('oldPassword').value;
+    var newPassword = document.getElementById('newPassword').value;
+    var messageDiv = document.getElementById('changePasswordMessage');
+    messageDiv.style.color = '#b94a48';
+    messageDiv.innerHTML = '<span class="loading-spinner" style="display:inline-block;width:1.5em;height:1.5em;border:3px solid #ccc;border-top:3px solid #8b7355;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-right:0.5em;"></span>Updating password...';
+    try {
+        var response = await fetch(API_BASE + '/staff/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            body: JSON.stringify({ oldPassword: oldPassword, newPassword: newPassword })
+        });
+        var data = await response.json();
+        if (data.success) {
+            messageDiv.style.color = '#28a745';
+            messageDiv.textContent = 'Password changed successfully!';
+            setTimeout(closeChangePasswordModal, 1500);
+        } else {
+            messageDiv.style.color = '#b94a48';
+            messageDiv.textContent = data.error || 'Failed to change password.';
+        }
+    } catch (err) {
+        messageDiv.style.color = '#b94a48';
+        messageDiv.textContent = 'An error occurred. Please try again.';
+    }
+}
     </script>
 </body>
 </html>
