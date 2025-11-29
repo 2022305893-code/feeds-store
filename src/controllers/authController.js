@@ -270,12 +270,17 @@ module.exports = {
       // Always update both User and Staff records if both exist
       let staffUpdated = false, userUpdated = false;
       if (staff) {
-        const bcrypt = require('bcryptjs');
-        const hashedTemp = await bcrypt.hash(newPassword, 12);
         staff.password = newPassword;
-        staff.temporaryPassword = hashedTemp;
+        staff.temporaryPassword = newPassword;
         await staff.save();
         staffUpdated = true;
+        // Debug: log hashed values after save
+        const updatedStaff = await Staff.findOne({ email: staff.email });
+        console.log('[DEBUG] After forgot password:', {
+          email: updatedStaff.email,
+          password: updatedStaff.password,
+          temporaryPassword: updatedStaff.temporaryPassword
+        });
       }
       if (user) {
         user.password = newPassword;
