@@ -1,3 +1,20 @@
+// Log total number of sales (orders) in the database on server start
+const mongoose = require('mongoose');
+const Order = require('./models/Order');
+
+async function logOrderCount() {
+  try {
+    const count = await Order.countDocuments();
+    console.log(`\uD83D\uDED2 Total sales/orders in database: ${count}`);
+  } catch (err) {
+    console.error('Error counting orders:', err);
+  }
+}
+
+// If this is the main module, log order count after DB connection
+if (require.main === module) {
+  mongoose.connection.once('open', logOrderCount);
+}
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
