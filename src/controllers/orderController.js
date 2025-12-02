@@ -352,10 +352,9 @@ const getSalesSummary = async (req, res) => {
       totalSubtotal: 0
     };
 
-    // Fetch recent orders (limit 10, sorted by orderDate desc)
+    // Fetch all orders in the date range (or all orders if no filter), sorted by orderDate desc
     const recentOrders = await Order.find(matchQuery)
       .sort({ orderDate: -1 })
-      .limit(10)
       .select('receiptNumber staffName orderDate total subtotal tax items productName name quantity');
 
     res.json({
