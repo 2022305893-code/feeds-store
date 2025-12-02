@@ -10610,8 +10610,8 @@
                 
                 if (salesResponse.ok) {
                     const salesData = await salesResponse.json();
-                    forecastData.salesHistory = salesData.orders || [];
-                    console.log('📊 Sales data loaded:', forecastData.salesHistory.length, 'records');
+                    // forecastData.salesHistory = salesData.orders || [];
+                    // console.log('📊 Sales data loaded:', forecastData.salesHistory.length, 'records');
                 }
                 
                 // Load products data
@@ -10783,16 +10783,12 @@
                     const salesData = await salesResponse.json();
                     const newSalesCount = (salesData.sales || []).length;
                     const oldSalesCount = forecastData.salesHistory.length;
-                    
-                    forecastData.salesHistory = salesData.sales || [];
-                    
+                    // forecastData.salesHistory = salesData.sales || [];
                     if (newSalesCount > oldSalesCount) {
                         console.log(`📊 New sales detected: ${newSalesCount - oldSalesCount} new orders`);
-                        
                         // Regenerate forecasts with new data
                         generateForecasts();
                         await updateForecastDisplay();
-                        
                         // Show notification
                         showForecastUpdateNotification();
                     }
@@ -11400,14 +11396,14 @@
 
                     // Use recentOrders for the Recent Sales table
                     if (Array.isArray(data.recentOrders)) {
-                        forecastData.salesHistory = data.recentOrders.map(order => ({
-                            ...order,
-                            // Fallbacks for compatibility with table rendering
-                            id: order._id || order.id,
-                            receiptNumber: order.orderNumber || order.receiptNumber,
-                            totalAmount: order.total,
-                        }));
-                        updateRecentSalesTable();
+                        // forecastData.salesHistory = data.recentOrders.map(order => ({
+                        //     ...order,
+                        //     // Fallbacks for compatibility with table rendering
+                        //     id: order._id || order.id,
+                        //     receiptNumber: order.orderNumber || order.receiptNumber,
+                        //     totalAmount: order.total,
+                        // }));
+                        // updateRecentSalesTable();
                     }
 
                     // Get yesterday's data
