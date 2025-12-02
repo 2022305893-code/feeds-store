@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+const Order = require('./models/Order');
 // Log total number of sales (orders) in the database on server start
 
 
