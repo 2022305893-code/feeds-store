@@ -12122,12 +12122,7 @@
                         return;
                     }
                     const filtered = allRecentOrders.filter(order => {
-                        let receiptNo = '-';
-                        if (order.id && typeof order.id === 'string' && order.id.length >= 24) {
-                            receiptNo = order.id.substring(16, 24);
-                        } else if (order.id) {
-                            receiptNo = order.id.toString();
-                        }
+                        const receiptNo = order.id ? order.id.toString() : '-';
                         return receiptNo.includes(searchValue);
                     });
                     updateRecentSalesTableLive(filtered);
