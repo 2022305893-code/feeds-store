@@ -11499,8 +11499,16 @@
             console.log('📊 Updating recent sales table with', salesData.length, 'orders');
             forecastingSalesData = salesData || [];
             // Sort all orders by date (orderDate, createdAt, or saleDate)
-            const sortedAllOrders = [...forecastingSalesData]
+            let sortedAllOrders = [...forecastingSalesData]
                 .sort((a, b) => new Date(b.orderDate || b.createdAt || b.saleDate) - new Date(a.orderDate || a.createdAt || a.saleDate));
+            // Search by receipt number (id) BEFORE pagination
+            const receiptSearchValue = (document.getElementById('receiptSearchInput')?.value || '').trim();
+            if (receiptSearchValue) {
+                sortedAllOrders = sortedAllOrders.filter(order => {
+                    const receiptNo = order.id ? order.id.toString() : '-';
+                    return receiptNo.includes(receiptSearchValue);
+                });
+            }
             const globallyNewestSaleDate = sortedAllOrders[0]?.orderDate || sortedAllOrders[0]?.createdAt || sortedAllOrders[0]?.saleDate;
             // Pagination
             totalForecastingPages = Math.max(1, Math.ceil(sortedAllOrders.length / forecastingItemsPerPage));
@@ -11510,15 +11518,7 @@
             const startIndex = (currentForecastingPage - 1) * forecastingItemsPerPage;
             const endIndex = startIndex + forecastingItemsPerPage;
             let currentPageOrders = sortedAllOrders.slice(startIndex, endIndex);
-            // Search by receipt number (id)
-            const receiptSearchValue = (document.getElementById('receiptSearchInput')?.value || '').trim();
             let filteredOrders = currentPageOrders;
-            if (receiptSearchValue) {
-                filteredOrders = currentPageOrders.filter(order => {
-                    const receiptNo = order.id ? order.id.toString() : '-';
-                    return receiptNo.includes(receiptSearchValue);
-                });
-            }
             // Update pagination display
             updateForecastingPagination();
             // Update total sales summary with ALL orders
