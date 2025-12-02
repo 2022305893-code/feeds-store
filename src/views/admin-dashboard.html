@@ -11365,15 +11365,8 @@
         // Update daily sales display - use same logic as analytics
         async function updateDailySalesDisplay() {
             try {
-                // Get all sales data for Recent Sales table (from 2000-01-01 to now)
-                const allTimeStart = new Date('2000-01-01T00:00:00.000Z');
-                const allTimeEnd = new Date();
-                const params = new URLSearchParams();
-                params.append('startDate', allTimeStart.toISOString());
-                params.append('endDate', allTimeEnd.toISOString());
-                params.append('_t', Date.now());
-                console.log('📊 Loading ALL sales from:', allTimeStart, 'to:', allTimeEnd);
-                const response = await fetch(`${API_BASE}/orders/summary/sales?${params}`, {
+                // Fetch ALL sales directly for the Recent Sales table (no filter)
+                const allOrdersResponse = await fetch(`${API_BASE}/orders`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -11382,44 +11375,18 @@
                         'Expires': '0'
                     }
                 });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('📊 Daily sales data:', data);
-
-                    // Use summary for stats
-                    const summary = data.summary || {};
-                    const revenue = summary.totalRevenue || 0;
-                    const orders = summary.totalOrders || 0;
-                    document.getElementById('todaySales').textContent = `₱${revenue.toFixed(2)}`;
-                    document.getElementById('todayOrders').textContent = `${orders} orders`;
-
-                    // Fetch ALL sales directly for the Recent Sales table (no filter)
-                    try {
-                        const allOrdersResponse = await fetch(`${API_BASE}/orders`, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                                'Cache-Control': 'no-cache',
-                                'Pragma': 'no-cache',
-                                'Expires': '0'
-                            }
-                        });
-                        if (allOrdersResponse.ok) {
-                            const allOrdersData = await allOrdersResponse.json();
-                            if (Array.isArray(allOrdersData.orders)) {
-                                forecastData.salesHistory = allOrdersData.orders.map(order => ({
-                                    ...order,
-                                    id: order._id || order.id,
-                                    receiptNumber: order.orderNumber || order.receiptNumber,
-                                    totalAmount: order.total,
-                                }));
-                                updateRecentSalesTable();
-                            }
-                        }
-                    } catch (err) {
-                        console.error('Error fetching all sales for Recent Sales table:', err);
+                if (allOrdersResponse.ok) {
+                    const allOrdersData = await allOrdersResponse.json();
+                    if (Array.isArray(allOrdersData.orders)) {
+                        forecastData.salesHistory = allOrdersData.orders.map(order => ({
+                            ...order,
+                            id: order._id || order.id,
+                            receiptNumber: order.orderNumber || order.receiptNumber,
+                            totalAmount: order.total,
+                        }));
+                        updateRecentSalesTable();
                     }
+                }
 
                     // Get yesterday's data
                     const { startDate: yesterdayStart, endDate: yesterdayEnd } = getDateRangeForPeriod('yesterday');
