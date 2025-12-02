@@ -11505,7 +11505,12 @@
             const receiptSearchValue = (document.getElementById('receiptSearchInput')?.value || '').trim();
             if (receiptSearchValue) {
                 sortedAllOrders = sortedAllOrders.filter(order => {
-                    const receiptNo = order.id ? order.id.toString() : '-';
+                    let receiptNo = '-';
+                    if (order.id && typeof order.id === 'string' && order.id.length >= 24) {
+                        receiptNo = order.id.substring(16, 24);
+                    } else if (order.id) {
+                        receiptNo = order.id.toString();
+                    }
                     return receiptNo.includes(receiptSearchValue);
                 });
             }
