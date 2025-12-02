@@ -1,6 +1,5 @@
 // Log total number of sales (orders) in the database on server start
-const mongoose = require('mongoose');
-const Order = require('./models/Order');
+
 
 async function logOrderCount() {
   try {
@@ -19,7 +18,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
-const mongoose = require('mongoose');
+// mongoose and Order already required above
 // Restart backend for CORS update
 const multer = require('multer');
 const { exec } = require('child_process');
