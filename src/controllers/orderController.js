@@ -242,9 +242,7 @@ const createOrder = async (req, res) => {
 const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find({})
-      .sort({ orderDate: -1 })
-      .limit(100);
-    
+      .sort({ orderDate: -1 }); // Removed .limit(100) to return all sales
     res.json({
       success: true,
       orders
