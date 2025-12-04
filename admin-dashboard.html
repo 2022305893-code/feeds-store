@@ -7303,6 +7303,7 @@
                 }
                 const closeStockManagementBtn = document.getElementById('closeStockManagementModal');
                 if (closeStockManagementBtn) {
+                    closeStockManagementBtn.style.pointerEvents = 'auto'; // Ensure clickable
                     closeStockManagementBtn.removeEventListener('click', closeStockManagementModal); // Remove previous to avoid duplicates
                     closeStockManagementBtn.addEventListener('click', closeStockManagementModal);
                 }
