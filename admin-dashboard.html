@@ -7292,8 +7292,21 @@
             // Reset the form
             document.getElementById('stockManagementForm').reset();
             
-            // Show the modal
-            modal.style.display = 'block';
+            // Show modal
+            lowStockModal.style.display = 'block';
+            // Attach event listener to stockManagementForm after modal is rendered
+            setTimeout(() => {
+                const stockManagementForm = document.getElementById('stockManagementForm');
+                if (stockManagementForm) {
+                    stockManagementForm.removeEventListener('submit', handleStockManagementSubmit); // Remove previous to avoid duplicates
+                    stockManagementForm.addEventListener('submit', handleStockManagementSubmit);
+                }
+                const closeStockManagementBtn = document.getElementById('closeStockManagementModal');
+                if (closeStockManagementBtn) {
+                    closeStockManagementBtn.removeEventListener('click', closeStockManagementModal); // Remove previous to avoid duplicates
+                    closeStockManagementBtn.addEventListener('click', closeStockManagementModal);
+                }
+            }, 50);
         }
 
         // Close stock management modal
