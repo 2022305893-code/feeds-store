@@ -7799,14 +7799,14 @@
             let totalRevenue = 0;
             let totalCost = 0;
             
+            let totalProfit = 0;
             ordersData.forEach(order => {
                 if (!order.items) return;
-                let orderCost = 0;
                 order.items.forEach(item => {
                     const itemRevenue = (item.price || 0) * (item.quantity || 1);
-                    // Use item.cost if present, else fallback to 900 (example value)
                     const itemCost = (item.cost !== undefined ? item.cost : 900) * (item.quantity || 1);
-                    orderCost += itemCost;
+                    // Profit per item: (selling price - cost price) * quantity
+                    totalProfit += (itemRevenue - itemCost);
                     // Count and revenue by animal type
                     const animalType = item.animalType?.toLowerCase() || 'chicken';
                     if (salesByAnimal[animalType]) {
@@ -7827,12 +7827,7 @@
                     productMap[productName].quantity += item.quantity || 1;
                     productMap[productName].revenue += itemRevenue;
                 });
-                // totalRevenue is order.total (with VAT)
                 totalRevenue += order.total || order.totalAmount || 0;
-                // totalCost is subtotal (without VAT) minus cost
-                if (order.subtotal) {
-                    totalCost += order.subtotal - orderCost;
-                }
             });
             
             console.log('📊 Breakdown calculations:', {
@@ -7846,17 +7841,15 @@
                 .sort((a, b) => b.quantity - a.quantity)
                 .slice(0, 10);
             
-            // Profit = subtotal - cost; Margin = (profit / subtotal) * 100
-            const profit = totalCost;
+            // Profit = sum of (selling price - cost price) for all items
             const subtotal = ordersData.reduce((sum, order) => sum + (order.subtotal || 0), 0);
-            const profitMargin = subtotal > 0 ? (profit / subtotal) * 100 : 0;
+            const profitMargin = subtotal > 0 ? (totalProfit / subtotal) * 100 : 0;
             return {
                 totalSales: ordersData.length,
                 totalRevenue: totalRevenue,
                 subtotal: subtotal,
                 vat: totalRevenue - subtotal,
-                cost: ordersData.length === 1 ? 900 : totalCost, // fallback for single order
-                totalProfit: profit,
+                totalProfit: totalProfit,
                 profitMargin: profitMargin,
                 salesByAnimal,
                 salesByCategory,
