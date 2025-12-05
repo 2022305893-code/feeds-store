@@ -7801,10 +7801,12 @@
             
             ordersData.forEach(order => {
                 if (!order.items) return;
+                let orderCost = 0;
                 order.items.forEach(item => {
                     const itemRevenue = (item.price || 0) * (item.quantity || 1);
+                    // Use item.cost if present, else fallback to 0
                     const itemCost = (item.cost || 0) * (item.quantity || 1);
-                    totalCost += itemCost;
+                    orderCost += itemCost;
                     // Count and revenue by animal type
                     const animalType = item.animalType?.toLowerCase() || 'chicken';
                     if (salesByAnimal[animalType]) {
@@ -7825,6 +7827,11 @@
                     productMap[productName].quantity += item.quantity || 1;
                     productMap[productName].revenue += itemRevenue;
                 });
+                // If no item cost, use order.subtotal as cost
+                if (orderCost === 0 && order.subtotal) {
+                    orderCost = order.subtotal;
+                }
+                totalCost += orderCost;
                 totalRevenue += order.total || order.totalAmount || 0;
             });
             
