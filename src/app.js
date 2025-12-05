@@ -690,7 +690,7 @@ app.get('/product/:id', (req, res) => {
                   let cost = 0;
                   if (productData.category === 'feeds') {
                     if (selectedUnit === 'sack') {
-                      cost = 1000;
+                      cost = productData.costPerSack || 0;
                     } else if (selectedUnit === 'kilo') {
                       // Calculate cost per kilo from cost per sack (1 sack = 25 kilos)
                       cost = (productData.costPerSack || 0) / 25;
@@ -1336,3 +1336,4 @@ app.listen(PORT, async () => {
 });
 
 module.exports = app;
+
