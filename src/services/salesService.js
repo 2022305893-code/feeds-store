@@ -22,15 +22,18 @@ class SalesService {
       console.log('Calculated total amount:', totalAmount);
 
       // Calculate cost and profit
-      let costPerUnit = 0;
-      if (saleData.unit === 'sack' && product.costPerSack) {
-        costPerUnit = product.costPerSack;
-      } else if (saleData.unit === 'kilo' && product.costPerSack) {
-        // Calculate cost per kilo from cost per sack (1 sack = 25 kilos)
-        costPerUnit = product.costPerSack / 25;
-      } else if (product.cost) {
-        costPerUnit = product.cost;
-      }
+        let costPerUnit = 0;
+        // Use cost from saleData if provided, otherwise fallback to product cost fields
+        if (typeof saleData.cost === 'number' && !isNaN(saleData.cost)) {
+          costPerUnit = saleData.cost;
+        } else if (saleData.unit === 'sack' && product.costPerSack) {
+          costPerUnit = product.costPerSack;
+        } else if (saleData.unit === 'kilo' && product.costPerSack) {
+          // Calculate cost per kilo from cost per sack (1 sack = 25 kilos)
+          costPerUnit = product.costPerSack / 25;
+        } else if (product.cost) {
+          costPerUnit = product.cost;
+        }
       
       const totalCost = saleData.quantity * costPerUnit;
       const profit = totalAmount - totalCost;
