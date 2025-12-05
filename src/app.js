@@ -689,10 +689,16 @@ app.get('/product/:id', (req, res) => {
                 try {
                   let cost = 0;
                   if (productData.category === 'feeds') {
-                    cost = selectedUnit === 'sack' ? productData.costPerSack : productData.cost;
+                    if (selectedUnit === 'sack') {
+                      cost = productData.costPerSack || 0;
+                    } else if (selectedUnit === 'kilo') {
+                      // Calculate cost per kilo from cost per sack (1 sack = 25 kilos)
+                      cost = (productData.costPerSack || 0) / 25;
+                    }
                   } else {
-                    cost = productData.cost;
+                    cost = productData.cost || 0;
                   }
+                  console.log('[SALE CREATION] Sending cost:', { unit: selectedUnit, costPerSack: productData.costPerSack, calculatedCost: cost });
                   const saleData = {
                     productId: productData.id,
                     quantity: quantity,
