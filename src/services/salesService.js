@@ -198,8 +198,8 @@ class SalesService {
       let totalCost = sales.reduce((sum, sale) => sum + (sale.totalCost || 0), 0);
       let totalProfit = sales.reduce((sum, sale) => sum + (sale.profit || 0), 0);
       
-      // Also process orders if no sales found OR if we have both sales and orders
-      if (orders.length > 0) {
+      // Only process orders if NO sales records found \(for backwards compatibility\)
+      if (orders.length > 0 && sales.length === 0) {
         try {
           console.log('🔧 Processing orders for analytics...');
         console.log('🔍 All orders found:', orders.map(order => ({
@@ -841,3 +841,5 @@ class SalesService {
 }
 
 module.exports = SalesService;
+
+
